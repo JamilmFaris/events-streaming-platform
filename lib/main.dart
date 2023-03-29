@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'screens/signup_screen.dart';
+import 'screens/login_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (_) => MainPage(),
         SignUpScreen.routeName: (_) => SignUpScreen(),
+        LoginScreen.routeName: (_) => LoginScreen(),
       },
     );
   }
