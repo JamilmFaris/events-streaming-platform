@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'screens/signup_screen.dart';
 import 'screens/login_screen.dart';
+import 'screens/edit_account_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/': (_) => MainPage(),
         SignUpScreen.routeName: (_) => SignUpScreen(),
         LoginScreen.routeName: (_) => LoginScreen(),
+        EditAccountScreen.routeName: (_) => EditAccountScreen(),
       },
     );
   }
@@ -44,7 +46,9 @@ class MainPage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              authButton('login', context, LoginScreen.routeName),
               authButton('signup', context, SignUpScreen.routeName),
+              authButton('edit account', context, EditAccountScreen.routeName),
             ],
           ),
         ),
