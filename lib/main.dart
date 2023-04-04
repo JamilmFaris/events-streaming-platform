@@ -1,5 +1,8 @@
+import 'package:events_streaming_platform/classes/helper.dart';
 import 'package:flutter/material.dart';
 
+import 'classes/nav_drawer.dart';
+import 'classes/route_details.dart';
 import 'screens/signup_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/edit_account_screen.dart';
@@ -34,10 +37,12 @@ class MyApp extends StatelessWidget {
 
 class MainPage extends StatelessWidget {
   MainPage({Key? key}) : super(key: key);
+  // just add routesDetails here and boom it will be in the drawer
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: NavDrawer.getDrawer(context),
       appBar: AppBar(
         title: const Text('Main page'),
       ),
@@ -45,10 +50,16 @@ class MainPage extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              authButton('login', context, LoginScreen.routeName),
-              authButton('signup', context, SignUpScreen.routeName),
-              authButton('edit account', context, EditAccountScreen.routeName),
+              Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(10.0),
+                child: const Text(
+                  'upcoming events',
+                  style: TextStyle(fontSize: 30),
+                ),
+              ),
             ],
           ),
         ),
