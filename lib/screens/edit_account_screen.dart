@@ -50,33 +50,40 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
               controller: firstNameController,
               textType: 'first name',
               autofocus: true,
+              textInputAction: TextInputAction.next,
             ),
             AuthArguments.authTextField(
               controller: lastNameController,
               textType: 'last name',
+              textInputAction: TextInputAction.next,
             ),
             AuthArguments.authTextField(
               controller: userNameController,
               textType: 'username',
+              textInputAction: TextInputAction.next,
             ),
             AuthArguments.authTextField(
               controller: emailController,
               textType: 'email',
               textInputType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
             ),
             AuthArguments.authTextField(
               controller: passwordController,
               textType: 'password',
               obscureText: true,
+              textInputAction: TextInputAction.next,
             ),
             AuthArguments.authTextField(
               controller: verifyPasswordController,
               textType: 'password again',
               obscureText: true,
+              textInputAction: TextInputAction.next,
             ),
             AuthArguments.authTextField(
               controller: bioController,
               textType: 'bio',
+              textInputAction: TextInputAction.next,
             ),
             AuthArguments.authTextField(
               controller: headlineController,

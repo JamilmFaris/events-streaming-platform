@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import '../classes/auth_arguments.dart';
 import '../request/request.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignupScreen extends StatelessWidget {
   static const routeName = '/signup';
-  const SignUpScreen({super.key});
+  const SignupScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,27 +22,28 @@ class SignUpScreen extends StatelessWidget {
         child: Column(
           children: [
             AuthArguments.authTextField(
-              controller: firstNameController,
-              textType: 'first name',
-            ),
+                autofocus: true,
+                controller: firstNameController,
+                textType: 'first name',
+                textInputAction: TextInputAction.next),
             AuthArguments.authTextField(
-              controller: lastNameController,
-              textType: 'last name',
-            ),
+                controller: lastNameController,
+                textType: 'last name',
+                textInputAction: TextInputAction.next),
             AuthArguments.authTextField(
-              controller: userNameController,
-              textType: 'username',
-            ),
+                controller: userNameController,
+                textType: 'username',
+                textInputAction: TextInputAction.next),
             AuthArguments.authTextField(
-              controller: emailController,
-              textType: 'email',
-              textInputType: TextInputType.emailAddress,
-            ),
+                controller: emailController,
+                textType: 'email',
+                textInputType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next),
             AuthArguments.authTextField(
-              controller: passwordController,
-              textType: 'password',
-              obscureText: true,
-            ),
+                controller: passwordController,
+                textType: 'password',
+                obscureText: true,
+                textInputAction: TextInputAction.next),
             AuthArguments.authTextField(
               controller: verifyPasswordController,
               textType: 'password again',

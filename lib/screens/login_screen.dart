@@ -9,7 +9,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController userNameController = TextEditingController(),
+    TextEditingController usernameController = TextEditingController(),
         passwordController = TextEditingController();
     const double bottomPadding = AuthArguments.bottomPadding;
     return Scaffold(
@@ -19,24 +19,24 @@ class LoginScreen extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: bottomPadding),
           child: AuthArguments.authTextField(
             autofocus: true,
-            controller: userNameController,
-            textType: 'login',
+            controller: usernameController,
+            textType: 'username',
           ),
         ),
         Padding(
           padding: const EdgeInsets.only(bottom: bottomPadding),
           child: AuthArguments.authTextField(
-            controller: userNameController,
-            textType: 'login',
+            controller: passwordController,
+            textType: 'password',
             obscureText: true,
           ),
         ),
         AuthArguments.authFilledButton(
           onPressed: () {
-            if (userNameController.text != "" &&
+            if (usernameController.text != "" &&
                 passwordController.text != "") {
               Request.login(
-                userNameController.text,
+                usernameController.text,
                 passwordController.text,
               );
             }

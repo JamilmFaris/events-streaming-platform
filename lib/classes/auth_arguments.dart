@@ -13,14 +13,14 @@ abstract class AuthArguments {
     ),
   );
 
-  static Widget authTextField({
-    bool autofocus = false,
-    required TextEditingController controller,
-    required String textType,
-    String label = "",
-    bool obscureText = false,
-    TextInputType textInputType = TextInputType.text,
-  }) {
+  static Widget authTextField(
+      {bool autofocus = false,
+      required TextEditingController controller,
+      required String textType,
+      String label = "",
+      bool obscureText = false,
+      TextInputType textInputType = TextInputType.text,
+      TextInputAction? textInputAction}) {
     if (label.isEmpty) {
       label = textType;
     }
@@ -32,10 +32,11 @@ abstract class AuthArguments {
           autofocus: autofocus,
           controller: controller,
           decoration: InputDecoration(
-            hintText: "input your $textType..",
+            hintText: "input your $textType",
             border: outlineInputBorder,
           ),
           keyboardType: textInputType,
+          textInputAction: textInputAction,
         ),
       ],
     );

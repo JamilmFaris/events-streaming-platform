@@ -14,7 +14,7 @@ class NavDrawer {
     ),
     RouteDetails(
       name: 'signup',
-      routeName: SignUpScreen.routeName,
+      routeName: SignupScreen.routeName,
       icon: Icons.app_registration,
     ),
     RouteDetails(
