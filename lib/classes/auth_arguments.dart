@@ -1,11 +1,12 @@
+import 'package:events_streaming_platform/classes/styles.dart';
 import 'package:flutter/material.dart';
 
 import './helper.dart';
 
 abstract class AuthArguments {
   static const Size accountImageMaxSize = Size(128.0, 128.0);
-
-  static const double bottomPadding = 20.0;
+  static const double appbarPadding = 8.0;
+  static const double bottomPadding = 8.0;
   static const double circular = 20.0;
   static const OutlineInputBorder outlineInputBorder = OutlineInputBorder(
     borderRadius: BorderRadius.all(
@@ -34,6 +35,7 @@ abstract class AuthArguments {
           decoration: InputDecoration(
             hintText: "input your $textType",
             border: outlineInputBorder,
+            hintStyle: Styles.hintStyle,
           ),
           keyboardType: textInputType,
           textInputAction: textInputAction,
