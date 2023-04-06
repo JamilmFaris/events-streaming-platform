@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:events_streaming_platform/classes/tw_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -30,73 +31,85 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
         headlineController = TextEditingController();
     Image addImage = Image.asset('assets/images/add_image.png');
     return Scaffold(
+      backgroundColor: TwColors.backgroundColor(context),
       appBar: AppBar(
         title: const Text('edit account'),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            image == null
-                ? GestureDetector(
-                    onTap: pick,
-                    child: addImage,
-                  )
-                : Image.file(
-                    File(image!.path),
-                    height: addImage.height,
-                    width: addImage.width,
-                  ),
-            AuthArguments.authTextField(
-              controller: firstNameController,
-              textType: 'first name',
-              autofocus: true,
-            ),
-            AuthArguments.authTextField(
-              controller: lastNameController,
-              textType: 'last name',
-            ),
-            AuthArguments.authTextField(
-              controller: userNameController,
-              textType: 'username',
-            ),
-            AuthArguments.authTextField(
-              controller: emailController,
-              textType: 'email',
-              textInputType: TextInputType.emailAddress,
-            ),
-            AuthArguments.authTextField(
-              controller: passwordController,
-              textType: 'password',
-              obscureText: true,
-            ),
-            AuthArguments.authTextField(
-              controller: verifyPasswordController,
-              textType: 'password again',
-              obscureText: true,
-            ),
-            AuthArguments.authTextField(
-              controller: bioController,
-              textType: 'bio',
-            ),
-            AuthArguments.authTextField(
-              controller: headlineController,
-              textType: 'headline',
-            ),
-            AuthArguments.authFilledButton(
-              onPressed: () {
-                Request.editAccount(
-                  firstNameController.text,
-                  lastNameController.text,
-                  userNameController.text,
-                  emailController.text,
-                  passwordController.text,
-                  bioController.text,
-                  headlineController.text,
-                );
-              },
-              child: const Text('edit my account'),
-            ),
-          ],
+      body: Padding(
+        padding:
+            const EdgeInsets.symmetric(vertical: AuthArguments.appbarPadding),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              image == null
+                  ? GestureDetector(
+                      onTap: pick,
+                      child: addImage,
+                    )
+                  : Image.file(
+                      File(image!.path),
+                      height: addImage.height,
+                      width: addImage.width,
+                    ),
+              AuthArguments.authTextField(
+                controller: firstNameController,
+                textType: 'first name',
+                autofocus: true,
+                textInputAction: TextInputAction.next,
+              ),
+              AuthArguments.authTextField(
+                controller: lastNameController,
+                textType: 'last name',
+                textInputAction: TextInputAction.next,
+              ),
+              AuthArguments.authTextField(
+                controller: userNameController,
+                textType: 'username',
+                textInputAction: TextInputAction.next,
+              ),
+              AuthArguments.authTextField(
+                controller: emailController,
+                textType: 'email',
+                textInputType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+              ),
+              AuthArguments.authTextField(
+                controller: passwordController,
+                textType: 'password',
+                obscureText: true,
+                textInputAction: TextInputAction.next,
+              ),
+              AuthArguments.authTextField(
+                controller: verifyPasswordController,
+                textType: 'password again',
+                obscureText: true,
+                textInputAction: TextInputAction.next,
+              ),
+              AuthArguments.authTextField(
+                controller: bioController,
+                textType: 'bio',
+                textInputAction: TextInputAction.next,
+              ),
+              AuthArguments.authTextField(
+                controller: headlineController,
+                textType: 'headline',
+              ),
+              AuthArguments.authFilledButton(
+                onPressed: () {
+                  Request.editAccount(
+                    firstNameController.text,
+                    lastNameController.text,
+                    userNameController.text,
+                    emailController.text,
+                    passwordController.text,
+                    bioController.text,
+                    headlineController.text,
+                  );
+                },
+                child: const Text('edit my account'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -112,7 +125,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
       if (image == null) return;
       setState(() {
         this.image = image;
-        print(image.path);
       });
     } on PlatformException catch (e) {
       print('Failed to pick image: $e');

@@ -1,8 +1,8 @@
-import 'package:events_streaming_platform/classes/helper.dart';
 import 'package:flutter/material.dart';
 
 import 'classes/nav_drawer.dart';
-import 'classes/route_details.dart';
+import 'classes/styles.dart';
+import 'classes/tw_colors.dart';
 import 'screens/signup_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/edit_account_screen.dart';
@@ -15,11 +15,18 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primaryColor: Colors.grey,
+        primaryColor: TwColors.gray,
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.blueGrey.shade800,
+          shape:
+              const Border.fromBorderSide(BorderSide(color: TwColors.coolGray)),
+          backgroundColor: TwColors.gray,
           elevation: 0,
           centerTitle: true,
+          titleTextStyle: Styles.barTextStyle,
+        ),
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: TwColors.coolGray,
+          backgroundColor: TwColors.gray,
         ),
       ),
       darkTheme: ThemeData(
@@ -37,7 +44,6 @@ class MyApp extends StatelessWidget {
 
 class MainPage extends StatelessWidget {
   MainPage({Key? key}) : super(key: key);
-  // just add routesDetails here and boom it will be in the drawer
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +52,7 @@ class MainPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Main page'),
       ),
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: TwColors.backgroundColor(context),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -55,9 +61,9 @@ class MainPage extends StatelessWidget {
               Container(
                 alignment: Alignment.center,
                 padding: const EdgeInsets.all(10.0),
-                child: const Text(
+                child: Text(
                   'upcoming events',
-                  style: TextStyle(fontSize: 30),
+                  style: Styles.titleStyle,
                 ),
               ),
             ],

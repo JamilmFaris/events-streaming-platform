@@ -6,6 +6,7 @@ import '../screens/signup_screen.dart';
 import '/classes/route_details.dart';
 
 class NavDrawer {
+  // just add routesDetails here and boom it will be in the drawer
   static var routesDetails = [
     RouteDetails(
       name: 'homePage',

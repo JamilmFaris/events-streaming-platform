@@ -1,3 +1,4 @@
+import 'package:events_streaming_platform/classes/tw_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../request/request.dart';
@@ -13,6 +14,7 @@ class LoginScreen extends StatelessWidget {
         passwordController = TextEditingController();
     const double bottomPadding = AuthArguments.bottomPadding;
     return Scaffold(
+      backgroundColor: TwColors.backgroundColor(context),
       appBar: AppBar(title: const Text('login')),
       body: Column(children: [
         Padding(
