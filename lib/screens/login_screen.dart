@@ -1,4 +1,4 @@
-import 'package:events_streaming_platform/classes/tw_colors.dart';
+import 'package:events_streaming_platform/design/tw_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../request/request.dart';

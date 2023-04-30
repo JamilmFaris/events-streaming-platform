@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'classes/nav_drawer.dart';
-import 'classes/styles.dart';
-import 'classes/tw_colors.dart';
+import 'design/styles.dart';
+import 'design/tw_colors.dart';
 import 'screens/signup_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/edit_account_screen.dart';

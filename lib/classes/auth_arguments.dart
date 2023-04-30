@@ -1,4 +1,4 @@
-import 'package:events_streaming_platform/classes/styles.dart';
+import 'package:events_streaming_platform/design/styles.dart';
 import 'package:flutter/material.dart';
 
 import './helper.dart';
