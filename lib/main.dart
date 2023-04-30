@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
-import 'classes/nav_drawer.dart';
 import 'design/styles.dart';
 import 'design/tw_colors.dart';
+import 'screens/home_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/edit_account_screen.dart';
@@ -33,52 +32,13 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       routes: {
-        '/': (_) => MainPage(),
+        '/': (_) => HomeScreen(),
         SignupScreen.routeName: (_) => SignupScreen(),
         LoginScreen.routeName: (_) => LoginScreen(),
         EditAccountScreen.routeName: (_) => EditAccountScreen(),
       },
     );
   }
-}
-
-class MainPage extends StatelessWidget {
-  MainPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: NavDrawer.getDrawer(context),
-      appBar: AppBar(
-        title: const Text('Main page'),
-      ),
-      backgroundColor: TwColors.backgroundColor(context),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  'upcoming events',
-                  style: Styles.titleStyle,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-Widget authButton(String title, BuildContext context, String routeName) {
-  return TextButton(
-    onPressed: () => Navigator.pushNamed(context, routeName),
-    child: Text(title),
-  );
 }
 
 void main() => runApp(MyApp());
