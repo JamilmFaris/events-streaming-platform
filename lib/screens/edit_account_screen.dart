@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:events_streaming_platform/classes/tw_colors.dart';
+import 'package:events_streaming_platform/design/tw_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,6 +21,8 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double imageWidth = MediaQuery.of(context).size.width * 0.25;
+    double imageHeight = 100;
     TextEditingController firstNameController = TextEditingController(),
         lastNameController = TextEditingController(),
         userNameController = TextEditingController(),
@@ -41,16 +43,16 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              image == null
-                  ? GestureDetector(
-                      onTap: pick,
-                      child: addImage,
-                    )
-                  : Image.file(
-                      File(image!.path),
-                      height: addImage.height,
-                      width: addImage.width,
-                    ),
+              GestureDetector(
+                onTap: pick,
+                child: image == null
+                    ? getSizedImage(addImage, imageHeight, imageWidth)
+                    : getSizedImage(
+                        Image.file(File(image!.path)),
+                        imageHeight,
+                        imageWidth,
+                      ),
+              ),
               AuthArguments.authTextField(
                 controller: firstNameController,
                 textType: 'first name',
@@ -131,11 +133,11 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     }
   }
 
-  Widget getSizedImage(Image image) {
+  Widget getSizedImage(Image image, double height, double width) {
     return Center(
       child: Container(
-        height: 128,
-        width: 128,
+        height: height,
+        width: width,
         decoration: BoxDecoration(
           image: DecorationImage(
             fit: BoxFit.fitWidth,
