@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.events_streaming_platform">
+    <uses-permission android:name="android.permission.INTERNET" />
    <application
         android:label="events_streaming_platform"
         android:name="${applicationName}"
