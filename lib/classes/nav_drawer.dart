@@ -1,3 +1,4 @@
+import 'package:events_streaming_platform/screens/create_event_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/edit_account_screen.dart';
@@ -27,6 +28,11 @@ class NavDrawer {
       name: 'editAccount',
       routeName: EditAccountScreen.routeName,
       icon: Icons.edit,
+    ),
+    RouteDetails(
+      name: 'createEvent',
+      routeName: CreateEventScreen.routeName,
+      icon: Icons.create_new_folder_outlined,
     ),
   ];
   static UserAccountsDrawerHeader get userAccountsDrawerHeader {

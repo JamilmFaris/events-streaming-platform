@@ -1,3 +1,4 @@
+import 'package:events_streaming_platform/screens/create_event_screen.dart';
 import 'package:flutter/material.dart';
 import 'design/styles.dart';
 import 'design/tw_colors.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         SignupScreen.routeName: (_) => SignupScreen(),
         LoginScreen.routeName: (_) => LoginScreen(),
         EditAccountScreen.routeName: (_) => EditAccountScreen(),
+        CreateEventScreen.routeName: (_) => CreateEventScreen(),
       },
     );
   }
