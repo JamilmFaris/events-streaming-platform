@@ -38,6 +38,7 @@ class LoginScreen extends StatelessWidget {
             if (usernameController.text != "" &&
                 passwordController.text != "") {
               Request.login(
+                context,
                 usernameController.text,
                 passwordController.text,
               );

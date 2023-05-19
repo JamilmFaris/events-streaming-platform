@@ -1,9 +1,9 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 
+import '../classes/helper.dart';
+
 class Token {
-  static final DateFormat _format =
-      DateFormat('yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'');
   static Future<void> storeToken(String token, String expiry) async {
     AndroidOptions getAndroidOptions() => const AndroidOptions(
           encryptedSharedPreferences: true,
@@ -15,11 +15,11 @@ class Token {
 
     await storage.write(key: 'token', value: token);
 
-    DateTime dateTime = _format.parse(expiry);
+    DateTime dateTime = Helper.format.parse(expiry);
     await storage.write(key: 'expiry', value: dateTime.toString());
   }
 
-  static Future<String?> getToken(String token) async {
+  static Future<String?> getToken() async {
     AndroidOptions getAndroidOptions() => const AndroidOptions(
           encryptedSharedPreferences: true,
         );
@@ -27,7 +27,7 @@ class Token {
     final token = await storage.read(key: 'token');
     final expiry = await storage.read(key: 'expiry');
     if (expiry != null) {
-      DateTime expiryDate = _format.parse(expiry);
+      DateTime expiryDate = Helper.format.parse(expiry);
       if (expiryDate.isBefore(DateTime.now())) {
         deleteToken();
         return null;
