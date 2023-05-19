@@ -71,6 +71,7 @@ class SignupScreen extends StatelessWidget {
                         userNameController.text.isNotEmpty &&
                         passwordController.text.isNotEmpty) {
                       Request.signup(
+                        context,
                         firstNameController.text,
                         lastNameController.text,
                         userNameController.text,
