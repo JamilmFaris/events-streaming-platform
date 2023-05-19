@@ -21,7 +21,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    double imageWidth = MediaQuery.of(context).size.width * 0.25;
+    double imageWidth = 100;
     double imageHeight = 100;
     TextEditingController firstNameController = TextEditingController(),
         lastNameController = TextEditingController(),
@@ -99,6 +99,7 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
               AuthArguments.authFilledButton(
                 onPressed: () {
                   Request.editAccount(
+                    context,
                     firstNameController.text,
                     lastNameController.text,
                     userNameController.text,

@@ -8,18 +8,19 @@ import '../design/tw_colors.dart';
 import '../models/event.dart';
 
 class HomeScreen extends StatelessWidget {
+  static String routeName = '/';
   HomeScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    List<Event> events = Request.getEvents();
     return Scaffold(
-      drawer: NavDrawer.getDrawer(context),
-      appBar: AppBar(
-        title: const Text('Upcoming Events'),
-      ),
-      backgroundColor: TwColors.backgroundColor(context),
-      body: GridView.builder(
+        drawer: NavDrawer.getDrawer(context),
+        appBar: AppBar(
+          title: const Text('Upcoming Events'),
+        ),
+        backgroundColor: TwColors.backgroundColor(context),
+        body: Text('home')
+        /* GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 10,
@@ -29,7 +30,7 @@ class HomeScreen extends StatelessWidget {
           return EventWidget(event: events[i]);
         },
         itemCount: events.length,
-      ),
-    );
+      ),*/
+        );
   }
 }

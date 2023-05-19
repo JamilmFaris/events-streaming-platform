@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../classes/helper.dart';
 
 class Token {
-  static Future<void> storeToken(String token, String expiry) async {
+  static Future<void> storeToken(String token, DateTime expiry) async {
     AndroidOptions getAndroidOptions() => const AndroidOptions(
           encryptedSharedPreferences: true,
         );
@@ -14,9 +14,7 @@ class Token {
     //final keyPair = await storage.generateKeyPair();
 
     await storage.write(key: 'token', value: token);
-
-    DateTime dateTime = Helper.format.parse(expiry);
-    await storage.write(key: 'expiry', value: dateTime.toString());
+    await storage.write(key: 'expiry', value: expiry.toString());
   }
 
   static Future<String?> getToken() async {
@@ -27,7 +25,7 @@ class Token {
     final token = await storage.read(key: 'token');
     final expiry = await storage.read(key: 'expiry');
     if (expiry != null) {
-      DateTime expiryDate = Helper.format.parse(expiry);
+      DateTime expiryDate = DateTime.parse(expiry);
       if (expiryDate.isBefore(DateTime.now())) {
         deleteToken();
         return null;
