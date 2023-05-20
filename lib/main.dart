@@ -1,5 +1,6 @@
 import 'package:events_streaming_platform/screens/create_event_screen.dart';
 import 'package:flutter/material.dart';
+import 'classes/nav_drawer.dart';
 import 'design/styles.dart';
 import 'design/tw_colors.dart';
 import 'screens/home_screen.dart';
@@ -12,6 +13,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Drawer drawer = NavDrawer.getDrawer(
+      context,
+      '',
+      '',
+      '',
+      false,
+    );
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -33,7 +41,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       routes: {
-        '/': (_) => HomeScreen(),
+        HomeScreen.routeName: (context) => HomeScreen(),
         SignupScreen.routeName: (_) => SignupScreen(),
         LoginScreen.routeName: (_) => LoginScreen(),
         EditAccountScreen.routeName: (_) => EditAccountScreen(),

@@ -1,26 +1,65 @@
-import 'package:events_streaming_platform/request/request.dart';
-import 'package:events_streaming_platform/widgets/event_widget.dart';
+import 'package:events_streaming_platform/models/current_user.dart';
+import 'package:events_streaming_platform/models/token.dart';
 import 'package:flutter/material.dart';
 
 import '../classes/nav_drawer.dart';
-import '../design/styles.dart';
 import '../design/tw_colors.dart';
-import '../models/event.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   static String routeName = '/';
+  Drawer? drawer;
   HomeScreen({Key? key}) : super(key: key);
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+  bool firstBuild = true;
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
   Widget build(BuildContext context) {
+    print('home rebuilt ${widget.firstBuild}');
+    String? from = ModalRoute.of(context)!.settings.arguments as String?;
+    if (from != null && from == 'logout') {
+      widget.firstBuild = true;
+    }
+
+    if (widget.firstBuild) {
+      CurrentUser.getUser().then((user) {
+        Token.getToken().then((token) {
+          if (user != null) {
+            setState(() {
+              widget.drawer = NavDrawer.getDrawer(
+                context,
+                user.username,
+                user.email ?? '',
+                user.avatar ?? '',
+                (token != null),
+              );
+            });
+          } else {
+            setState(() {
+              widget.drawer = NavDrawer.getDrawer(
+                context,
+                '',
+                '',
+                '',
+                false,
+              );
+            });
+          }
+        });
+      });
+      widget.firstBuild = false;
+    }
     return Scaffold(
-        drawer: NavDrawer.getDrawer(context),
-        appBar: AppBar(
-          title: const Text('Upcoming Events'),
-        ),
-        backgroundColor: TwColors.backgroundColor(context),
-        body: Text('home')
-        /* GridView.builder(
+      drawer: widget.drawer,
+      appBar: AppBar(
+        title: const Text('Upcoming Events'),
+      ),
+      backgroundColor: TwColors.backgroundColor(context),
+      body: Text('home'),
+      /* GridView.builder(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 10,
@@ -31,6 +70,6 @@ class HomeScreen extends StatelessWidget {
         },
         itemCount: events.length,
       ),*/
-        );
+    );
   }
 }

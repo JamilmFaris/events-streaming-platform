@@ -35,7 +35,11 @@ class CurrentUser {
       'bio': user.bio,
       'headline': user.headline,
     });
-    print('store user $userString');
     prefs.setString('user', userString);
+  }
+
+  static Future<void> deleteUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('user');
   }
 }

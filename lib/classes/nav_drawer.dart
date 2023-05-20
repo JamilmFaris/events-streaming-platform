@@ -1,63 +1,114 @@
 import 'package:events_streaming_platform/screens/create_event_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../request/request.dart';
 import '../screens/edit_account_screen.dart';
+import '../screens/home_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
 import '/classes/route_details.dart';
 
 class NavDrawer {
   // just add routesDetails here and boom it will be in the drawer
-  static var routesDetails = [
-    RouteDetails(
+  static var routesDetails = [];
+  static UserAccountsDrawerHeader userAccountsDrawerHeader(
+    String username,
+    String email,
+    String avatarSource,
+  ) {
+    if (username.isEmpty) {
+      return UserAccountsDrawerHeader(
+        accountName: Text('no user'),
+        accountEmail: Text(''),
+        arrowColor: Colors.black,
+        currentAccountPicture: CircleAvatar(
+          backgroundImage:
+              Image.asset('assets/images/profile_image.jpeg').image,
+        ),
+      );
+    } else {
+      var avatar = (avatarSource.isEmpty)
+          ? Image.asset('assets/images/profile_image.jpeg')
+          : Image.network(avatarSource);
+      return UserAccountsDrawerHeader(
+        accountName: Text(username),
+        accountEmail: Text(email),
+        arrowColor: Colors.black,
+        currentAccountPicture: CircleAvatar(
+          backgroundImage: avatar.image,
+        ),
+      );
+    }
+  }
+
+  static Drawer getDrawer(
+    BuildContext context,
+    String username,
+    String email,
+    String avatarSource,
+    bool isLoggedIn,
+  ) {
+    var homepageRoute = RouteDetails(
       name: 'homePage',
-      routeName: '/',
+      routeName: HomeScreen.routeName,
       icon: Icons.home,
-    ),
-    RouteDetails(
+    );
+    var signupRoute = RouteDetails(
       name: 'signup',
       routeName: SignupScreen.routeName,
       icon: Icons.app_registration,
-    ),
-    RouteDetails(
+    );
+    var loginRoute = RouteDetails(
       name: 'login',
       routeName: LoginScreen.routeName,
       icon: Icons.login,
-    ),
-    RouteDetails(
+    );
+    var editAccountRoute = RouteDetails(
       name: 'editAccount',
       routeName: EditAccountScreen.routeName,
       icon: Icons.edit,
-    ),
-    RouteDetails(
+    );
+    var createEventRoute = RouteDetails(
       name: 'createEvent',
       routeName: CreateEventScreen.routeName,
       icon: Icons.create_new_folder_outlined,
-    ),
-  ];
-  static UserAccountsDrawerHeader get userAccountsDrawerHeader {
-    return UserAccountsDrawerHeader(
-      accountName: Text('jamil faris'),
-      accountEmail: Text('jamilfaris2000@gmail.com'),
-      arrowColor: Colors.black,
-      currentAccountPicture: CircleAvatar(
-        backgroundImage: Image.asset('assets/images/profile_image.jpeg').image,
-      ),
     );
-  }
-
-  static Drawer getDrawer(BuildContext context) {
+    var logoutRoute = RouteDetails(
+      name: 'logout',
+      routeName: HomeScreen.routeName,
+      icon: Icons.logout,
+    );
+    var header = userAccountsDrawerHeader(username, email, avatarSource);
+    if (isLoggedIn) {
+      routesDetails = [homepageRoute];
+      routesDetails.add(loginRoute);
+      routesDetails.add(signupRoute);
+      routesDetails.add(editAccountRoute);
+      routesDetails.add(createEventRoute);
+      routesDetails.add(logoutRoute);
+    } else {
+      routesDetails = [homepageRoute];
+      routesDetails.add(loginRoute);
+      routesDetails.add(signupRoute);
+    }
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          userAccountsDrawerHeader,
+          header,
           ...routesDetails.map((routeDetails) {
             return ListTile(
               title: Text(routeDetails.name),
               leading: Icon(routeDetails.icon),
               onTap: () {
-                Navigator.pushNamed(context, routeDetails.routeName);
+                if (routeDetails.name == 'logout') {
+                  Request.logout();
+                }
+                Navigator.pushNamed(
+                  context,
+                  routeDetails.routeName,
+                  arguments: 'logout',
+                );
               },
             );
           }).toList(),

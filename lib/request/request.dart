@@ -318,6 +318,11 @@ abstract class Request {
       return null;
     }
   }
+
+  static void logout() {
+    Token.deleteToken();
+    CurrentUser.deleteUser();
+  }
 }
 
 class EventsWithHasMoreEvents {
