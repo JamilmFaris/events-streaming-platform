@@ -103,12 +103,17 @@ class NavDrawer {
               onTap: () {
                 if (routeDetails.name == 'logout') {
                   Request.logout();
+                  Navigator.pushNamed(
+                    context,
+                    routeDetails.routeName,
+                    arguments: 'logout',
+                  );
+                } else {
+                  Navigator.pushNamed(
+                    context,
+                    routeDetails.routeName,
+                  );
                 }
-                Navigator.pushNamed(
-                  context,
-                  routeDetails.routeName,
-                  arguments: 'logout',
-                );
               },
             );
           }).toList(),

@@ -13,15 +13,23 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
   bool firstBuild = true;
+  bool getarguments = true;
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     print('home rebuilt ${widget.firstBuild}');
-    String? from = ModalRoute.of(context)!.settings.arguments as String?;
-    if (from != null && from == 'logout') {
-      widget.firstBuild = true;
+    String? arguments;
+    if (widget.getarguments) {
+      arguments = ModalRoute.of(context)!.settings.arguments as String?;
+    }
+    if (arguments != null && arguments == 'logout') {
+      print(arguments);
+      setState(() {
+        widget.firstBuild = true;
+        widget.getarguments = false;
+      });
     }
 
     if (widget.firstBuild) {
