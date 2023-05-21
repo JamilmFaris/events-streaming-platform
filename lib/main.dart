@@ -1,4 +1,5 @@
 import 'package:events_streaming_platform/screens/create_event_screen.dart';
+import 'package:events_streaming_platform/widgets/paginated_events_widget.dart';
 import 'package:flutter/material.dart';
 import 'classes/nav_drawer.dart';
 import 'design/styles.dart';
@@ -41,7 +42,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       routes: {
-        HomeScreen.routeName: (context) => HomeScreen(),
+        HomeScreen.routeName: (_) => HomeScreen(),
         SignupScreen.routeName: (_) => SignupScreen(),
         LoginScreen.routeName: (_) => LoginScreen(),
         EditAccountScreen.routeName: (_) => EditAccountScreen(),

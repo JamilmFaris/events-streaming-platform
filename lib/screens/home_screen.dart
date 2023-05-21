@@ -1,9 +1,11 @@
 import 'package:events_streaming_platform/models/current_user.dart';
 import 'package:events_streaming_platform/models/token.dart';
+import 'package:events_streaming_platform/widgets/paginated_events_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../classes/nav_drawer.dart';
 import '../design/tw_colors.dart';
+import '../request/request.dart';
 
 class HomeScreen extends StatefulWidget {
   static String routeName = '/';
@@ -14,6 +16,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
   bool firstBuild = true;
   bool getarguments = true;
+  bool getMyUpcomingEvents = false;
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -63,21 +66,45 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       drawer: widget.drawer,
       appBar: AppBar(
-        title: const Text('Upcoming Events'),
+        actions: [
+          Row(
+            children: [
+              Text(
+                widget.getMyUpcomingEvents
+                    ? 'get Published Events'
+                    : 'get My upcoming events',
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: TwColors.white,
+                ),
+              ),
+              Switch(
+                  value: widget.getMyUpcomingEvents,
+                  onChanged: (value) {
+                    setState(() {
+                      widget.getMyUpcomingEvents = value;
+                    });
+                  }),
+            ],
+          ),
+        ],
       ),
       backgroundColor: TwColors.backgroundColor(context),
-      body: Text('home'),
-      /* GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-        ),
-        itemBuilder: (_, i) {
-          return EventWidget(event: events[i]);
-        },
-        itemCount: events.length,
-      ),*/
+      body: Column(
+        children: [
+          Text(
+            widget.getMyUpcomingEvents
+                ? 'My upcoming events'
+                : 'Published Events',
+            style: const TextStyle(fontSize: 25),
+          ),
+          PaginatedEventsWidget(
+            getEventsRequest: widget.getMyUpcomingEvents
+                ? Request.getMyUpcomingEvents
+                : Request.getPublishedEvents,
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:events_streaming_platform/models/current_user.dart';
 import 'package:events_streaming_platform/models/event.dart';
 import 'package:events_streaming_platform/models/token.dart';
@@ -12,7 +10,7 @@ import '../models/user.dart';
 import '../screens/home_screen.dart';
 
 abstract class Request {
-  static String authority = '192.168.1.9:8000';
+  static String authority = '192.168.43.239:8000';
   static String databaseVersion = '/v1';
   static String urlPrefix = '/api';
 
@@ -182,11 +180,28 @@ abstract class Request {
     });
   }
 
-  static Future<EventsWithHasMoreEvents> getAllEvents({
+  static Future<List<Event>> getMyUpcomingEvents({
+    required int offset,
+    required int limit,
+  }) {
+    return Future.delayed(Duration(seconds: 2)).then((value) {
+      var event = Event(
+        id: 1,
+        title: 'title',
+        organizerName: 'organizerName',
+        description: 'description',
+        picture: "https://loremflickr.com/320/240/dog",
+        date: DateTime.now(),
+        isPublished: false,
+      );
+      return [event];
+    });
+  }
+
+  static Future<List<Event>> getPublishedEvents({
     required int offset,
     required int limit,
   }) async {
-    bool hasMoreEvents = false;
     print('limit $limit offset $offset \n\n');
     var url = Uri.http(
       authority,
@@ -194,42 +209,32 @@ abstract class Request {
       {'limit': limit.toString(), 'offset': offset.toString()},
     );
 
-    Future<http.Response> res = http.post(
+    Future<http.Response> res = http.get(
       url,
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-    List<Event> events = await res.then((response) async {
+    List<Event> events = await res.then((response) {
       var j = json.decode(response.body);
-      List<dynamic> results = j['results'];
+      print(j);
+      var results = j['results'] as List;
       int count = j['count'];
       // i've consedired that count is the remaining without
       //the ones that I have in my response
-      hasMoreEvents = (count > 0);
-      List<Event> curEvents = [];
-      results.forEach((element) {
-        curEvents.add(
-          Event(
-            id: element['id'],
-            title: element['title'],
-            organizerName: element['organizer'],
-            description: element['description'],
-            picture: element['picture'],
-            date: element['date'],
-            isPublished: true,
-          ),
-        );
-        print('event id is ${element['id']}');
-      });
+      print('results are $results');
+      bool hasMoreEvents = (count > 0);
+      List<Event> curEvents = results.map((element) {
+        print('element is $element');
+        Event curEvent = Event.fromJson(element);
+        print(curEvent);
+        return curEvent;
+        //print('event id is ${element['id']}');
+      }).toList();
+
       return curEvents;
     });
-
-    EventsWithHasMoreEvents ret = EventsWithHasMoreEvents(
-      events,
-      hasMoreEvents,
-    );
-    return ret;
+    return events;
   }
 
   static Future<int?> addTalk(
@@ -289,7 +294,6 @@ abstract class Request {
 
     //create multipart using filepath, string or bytes
     var pic = await http.MultipartFile.fromPath("picture", file.path);
-    //add multipart to request
     request.files.add(pic);
     String? token = await Token.getToken();
     if (token == null) {
@@ -310,6 +314,7 @@ abstract class Request {
     var responseString = String.fromCharCodes(responseData);
     if (response.statusCode == 201) {
       var j = json.decode(responseString);
+      print(j);
       return j['id'];
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -323,10 +328,4 @@ abstract class Request {
     Token.deleteToken();
     CurrentUser.deleteUser();
   }
-}
-
-class EventsWithHasMoreEvents {
-  List<Event> events;
-  bool hasMoreEvents;
-  EventsWithHasMoreEvents(this.events, this.hasMoreEvents);
 }

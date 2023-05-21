@@ -20,6 +20,17 @@ class Event {
     required this.isPublished,
     this.talks,
   });
+  factory Event.fromJson(Map<String, dynamic> json) {
+    return Event(
+      id: 1 /*json['id']*/,
+      title: json['title'],
+      organizerName: json['organizer'],
+      description: json['description'],
+      picture: json['picture'],
+      date: DateTime.now() /*json['date']*/,
+      isPublished: true /*json['is_published']*/,
+    );
+  }
 }
 
 class Talk {
