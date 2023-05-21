@@ -1,3 +1,4 @@
+import 'package:events_streaming_platform/models/current_user.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intl/intl.dart';
 
@@ -41,5 +42,6 @@ class Token {
         );
     final storage = FlutterSecureStorage(aOptions: getAndroidOptions());
     await storage.delete(key: 'token');
+    await CurrentUser.deleteUser();
   }
 }
