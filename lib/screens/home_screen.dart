@@ -15,8 +15,8 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
   bool firstBuild = true;
-  bool getarguments = true;
-  bool getMyUpcomingEvents = false;
+  bool isGetarguments = true;
+  bool isGetMyUpcomingEvents = false;
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -24,14 +24,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     print('home rebuilt ${widget.firstBuild}');
     String? arguments;
-    if (widget.getarguments) {
+    if (widget.isGetarguments) {
       arguments = ModalRoute.of(context)!.settings.arguments as String?;
     }
     if (arguments != null && arguments == 'logout') {
       print(arguments);
       setState(() {
         widget.firstBuild = true;
-        widget.getarguments = false;
+        widget.isGetarguments = false;
       });
     }
 
@@ -70,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             children: [
               Text(
-                widget.getMyUpcomingEvents
+                widget.isGetMyUpcomingEvents
                     ? 'get Published Events'
                     : 'get My upcoming events',
                 style: const TextStyle(
@@ -79,10 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Switch(
-                  value: widget.getMyUpcomingEvents,
+                  value: widget.isGetMyUpcomingEvents,
                   onChanged: (value) {
                     setState(() {
-                      widget.getMyUpcomingEvents = value;
+                      widget.isGetMyUpcomingEvents =
+                          !widget.isGetMyUpcomingEvents;
                     });
                   }),
             ],
@@ -92,16 +93,31 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: TwColors.backgroundColor(context),
       body: Column(
         children: [
-          Text(
-            widget.getMyUpcomingEvents
-                ? 'My upcoming events'
-                : 'Published Events',
-            style: const TextStyle(fontSize: 25),
-          ),
-          PaginatedEventsWidget(
-            getEventsRequest: widget.getMyUpcomingEvents
-                ? Request.getMyUpcomingEvents
-                : Request.getPublishedEvents,
+          Expanded(
+            child: Column(
+              children: [
+                Text(
+                  widget.isGetMyUpcomingEvents
+                      ? 'My upcoming events'
+                      : 'Published Events',
+                  style: const TextStyle(fontSize: 25),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: widget.isGetMyUpcomingEvents
+                        ? PaginatedEventsWidget(
+                            key: const ValueKey(1),
+                            getEventsRequest: Request.getMyUpcomingEvents,
+                          )
+                        : PaginatedEventsWidget(
+                            key: const ValueKey(2),
+                            getEventsRequest: Request.getPublishedEvents,
+                          ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

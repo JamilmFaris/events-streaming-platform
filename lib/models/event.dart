@@ -1,3 +1,5 @@
+import 'package:events_streaming_platform/classes/helper.dart';
+
 import 'user.dart';
 
 class Event {
@@ -22,13 +24,13 @@ class Event {
   });
   factory Event.fromJson(Map<String, dynamic> json) {
     return Event(
-      id: 1 /*json['id']*/,
+      id: json['id'],
       title: json['title'],
       organizerName: json['organizer'],
       description: json['description'],
       picture: json['picture'],
-      date: DateTime.now() /*json['date']*/,
-      isPublished: true /*json['is_published']*/,
+      date: DateTime.now() /*Helper.format.parse(json['date'])*/,
+      isPublished: json['is_published'],
     );
   }
 }

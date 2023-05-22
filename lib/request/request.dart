@@ -180,11 +180,131 @@ abstract class Request {
     });
   }
 
+  static Future<List<Event>> getMyOrganizedPublishedEvents({
+    BuildContext? context,
+    required int offset,
+    required int limit,
+  }) async {
+    String? token = await Token.getToken();
+    if (token == null) {
+      ScaffoldMessenger.of(context!).showSnackBar(
+        const SnackBar(content: Text('you have to login first')),
+      );
+      return [];
+    }
+    User? myUser = await CurrentUser.getUser();
+    if (myUser == null) {
+      ScaffoldMessenger.of(context!).showSnackBar(
+        const SnackBar(content: Text('please login first')),
+      );
+      return [];
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/users/${myUser.username}/organized-events/',
+    );
+
+    var headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    };
+    Future<List<Event>> events = http
+        .get(
+      url,
+      headers: headers,
+    )
+        .then((response) async {
+      if (response.statusCode == 200) {
+        var results = json.decode(response.body) as List;
+        List<Event> curEvents = results.map((element) {
+          Event curEvent = Event.fromJson(element);
+          curEvent.picture = 'http://$authority${curEvent.picture}';
+          print('my organized published event pic ${curEvent.picture}');
+          return curEvent;
+        }).toList();
+        print('curEvents $curEvents');
+
+        curEvents.removeWhere((element) {
+          print(element.isPublished);
+          return !element.isPublished;
+        });
+        print('curEvents $curEvents');
+        return curEvents;
+      } else {
+        ScaffoldMessenger.of(context!).showSnackBar(
+          const SnackBar(content: Text('there is a problem')),
+        );
+        return [];
+      }
+    });
+    return events;
+  }
+
+  static Future<List<Event>> getMyOrganizedUnPublishedEvents({
+    BuildContext? context,
+    required int offset,
+    required int limit,
+  }) async {
+    String? token = await Token.getToken();
+    if (token == null) {
+      ScaffoldMessenger.of(context!).showSnackBar(
+        const SnackBar(content: Text('you have to login first')),
+      );
+      return [];
+    }
+    User? myUser = await CurrentUser.getUser();
+    if (myUser == null) {
+      ScaffoldMessenger.of(context!).showSnackBar(
+        const SnackBar(content: Text('please login first')),
+      );
+      return [];
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/users/${myUser.username}/organized-events/',
+    );
+
+    var headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    };
+    Future<List<Event>> events = http
+        .get(
+      url,
+      headers: headers,
+    )
+        .then((response) async {
+      if (response.statusCode == 200) {
+        var results = json.decode(response.body) as List;
+        List<Event> curEvents = results.map((element) {
+          Event curEvent = Event.fromJson(element);
+          curEvent.picture = 'http://$authority${curEvent.picture}';
+          return curEvent;
+        }).toList();
+        print('curEvents $curEvents');
+
+        curEvents.removeWhere((element) {
+          return element.isPublished;
+        });
+        print('curEvents $curEvents');
+        return curEvents;
+      } else {
+        ScaffoldMessenger.of(context!).showSnackBar(
+          const SnackBar(content: Text('there is a problem')),
+        );
+        return [];
+      }
+    });
+    return events;
+  }
+
   static Future<List<Event>> getMyUpcomingEvents({
+    BuildContext? context,
     required int offset,
     required int limit,
   }) {
-    return Future.delayed(Duration(seconds: 2)).then((value) {
+    print('getMyUpcomingEvents');
+    return Future.delayed(Duration(seconds: 5)).then((value) {
       var event = Event(
         id: 1,
         title: 'title',
@@ -194,15 +314,16 @@ abstract class Request {
         date: DateTime.now(),
         isPublished: false,
       );
-      return [event];
+      return [event, event];
     });
   }
 
   static Future<List<Event>> getPublishedEvents({
+    BuildContext? context,
     required int offset,
     required int limit,
   }) async {
-    print('limit $limit offset $offset \n\n');
+    print('getPublishedEvents');
     var url = Uri.http(
       authority,
       '$urlPrefix$databaseVersion/events',
@@ -222,16 +343,13 @@ abstract class Request {
       int count = j['count'];
       // i've consedired that count is the remaining without
       //the ones that I have in my response
-      print('results are $results');
       bool hasMoreEvents = (count > 0);
       List<Event> curEvents = results.map((element) {
-        print('element is $element');
         Event curEvent = Event.fromJson(element);
-        print(curEvent);
+        print('curPublishedEvent picture ${curEvent.picture}');
         return curEvent;
         //print('event id is ${element['id']}');
       }).toList();
-
       return curEvents;
     });
     return events;
@@ -314,7 +432,9 @@ abstract class Request {
     var responseString = String.fromCharCodes(responseData);
     if (response.statusCode == 201) {
       var j = json.decode(responseString);
-      print(j);
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('event added to archived'),
+      ));
       return j['id'];
     } else {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(

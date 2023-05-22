@@ -1,4 +1,5 @@
 import 'package:events_streaming_platform/screens/create_event_screen.dart';
+import 'package:events_streaming_platform/screens/organized_events_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../request/request.dart';
@@ -73,11 +74,17 @@ class NavDrawer {
       routeName: CreateEventScreen.routeName,
       icon: Icons.create_new_folder_outlined,
     );
+    var myOrganizedEventsRoute = RouteDetails(
+      name: 'myOrganizedEvents',
+      routeName: OrganizedEventsScreen.routeName,
+      icon: Icons.access_alarm_sharp,
+    );
     var logoutRoute = RouteDetails(
       name: 'logout',
       routeName: HomeScreen.routeName,
       icon: Icons.logout,
     );
+
     var header = userAccountsDrawerHeader(username, email, avatarSource);
     if (isLoggedIn) {
       routesDetails = [homepageRoute];
@@ -85,6 +92,7 @@ class NavDrawer {
       routesDetails.add(signupRoute);
       routesDetails.add(editAccountRoute);
       routesDetails.add(createEventRoute);
+      routesDetails.add(myOrganizedEventsRoute);
       routesDetails.add(logoutRoute);
     } else {
       routesDetails = [homepageRoute];
