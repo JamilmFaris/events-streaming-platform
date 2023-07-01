@@ -36,28 +36,50 @@ class EditTalksWidget extends StatelessWidget {
       labeledTalks.add(LabledTalks(key, value));
     });
 
-    return ListView.builder(
-      itemBuilder: (_, i) {
-        return (i < labeledTalks.length)
-            ? ExpansionTile(
-                title: Text(labeledTalks[i].label),
-                children: labeledTalks[i]
-                    .talks
-                    .map(
-                      (talk) => Dismissible(
-                        key: ValueKey<int>(talk.id!),
-                        child: TalkWidget(talk: talk),
-                        onDismissed: (direction) {},
-                      ),
-                    )
-                    .toList(),
-              )
-            : IconButton(
-                onPressed: () => inputTalkDialog(context),
-                icon: const Icon(Icons.add),
-              );
-      },
-      itemCount: labeledTalks.length + 1,
+    return Column(
+      children: [
+        const Center(
+          child: Text(
+            'events\' talks',
+            style: TextStyle(fontSize: 20),
+          ),
+        ),
+        Container(
+            padding: const EdgeInsets.all(10),
+            margin: const EdgeInsets.only(top: 10),
+            decoration: BoxDecoration(border: Border.all()),
+            height: 200,
+            child: (talks.isEmpty)
+                ? const Center(
+                    child: Text(
+                      'There are no talks yet',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  )
+                : ListView.builder(
+                    itemBuilder: (_, i) {
+                      return (i < labeledTalks.length)
+                          ? ExpansionTile(
+                              title: Text(labeledTalks[i].label),
+                              children: labeledTalks[i]
+                                  .talks
+                                  .map(
+                                    (talk) => Dismissible(
+                                      key: ValueKey<int>(talk.id!),
+                                      child: TalkWidget(talk: talk),
+                                      onDismissed: (direction) {},
+                                    ),
+                                  )
+                                  .toList(),
+                            )
+                          : IconButton(
+                              onPressed: () => inputTalkDialog(context),
+                              icon: const Icon(Icons.add),
+                            );
+                    },
+                    itemCount: labeledTalks.length + 1,
+                  )),
+      ],
     );
   }
 

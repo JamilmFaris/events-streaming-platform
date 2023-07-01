@@ -64,29 +64,28 @@ class _EditEventDetailsScreenState extends State<EditEventDetailsScreen> {
                           ),
                   ),
                 ),
-                SizedBox(
-                  height: 200,
-                  child: EditTalksWidget(
-                    addTalkToParent: addTalk,
-                    talks: widget.event.talks ?? [],
-                  ),
+                EditTalksWidget(
+                  addTalkToParent: addTalk,
+                  talks: widget.event.talks ?? [],
                 ),
                 TextField(
                   controller: titleController,
                   decoration: InputDecoration(
-                    hintText: widget.event.title,
+                    hintStyle: const TextStyle(fontSize: 20),
+                    hintText: 'title : ${widget.event.title}',
                   ),
                 ),
                 EventArguments.createDateButton(
                   onPressed: _presentStartDatePicker,
                   child: Text(_selectedStartDate == null
-                      ? 'No date chosen!'
+                      ? 'click to add date'
                       : 'Picked date : ${DateFormat('yyyy-MM-dd HH:mm').format(_selectedStartDate!)}'),
                 ),
                 TextField(
                   controller: descriptionController,
                   decoration: InputDecoration(
-                    hintText: widget.event.description,
+                    hintStyle: const TextStyle(fontSize: 20),
+                    hintText: 'description : ${widget.event.description}',
                   ),
                 ),
                 Row(
