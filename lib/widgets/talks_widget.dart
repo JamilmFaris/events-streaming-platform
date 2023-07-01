@@ -34,25 +34,30 @@ class TalksWidget extends StatelessWidget {
       labeledTalks.add(LabledTalks(key, value));
     });
 
-    return (talks.isEmpty)
-        ? const Center(
-            child: Text(
-              'There are no talks yet',
-              style: TextStyle(fontSize: 20),
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(border: Border.all()),
+      height: 200,
+      child: (talks.isEmpty)
+          ? const Center(
+              child: Text(
+                'There are no talks yet',
+                style: TextStyle(fontSize: 20),
+              ),
+            )
+          : ListView.builder(
+              itemBuilder: (_, i) {
+                return ExpansionTile(
+                  title: Text(labeledTalks[i].label),
+                  children: labeledTalks[i]
+                      .talks
+                      .map((talk) => TalkWidget(talk: talk))
+                      .toList(),
+                );
+              },
+              itemCount: labeledTalks.length,
             ),
-          )
-        : ListView.builder(
-            itemBuilder: (_, i) {
-              return ExpansionTile(
-                title: Text(labeledTalks[i].label),
-                children: labeledTalks[i]
-                    .talks
-                    .map((talk) => TalkWidget(talk: talk))
-                    .toList(),
-              );
-            },
-            itemCount: labeledTalks.length,
-          );
+    );
   }
 }
 

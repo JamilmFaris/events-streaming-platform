@@ -38,10 +38,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.all(10),
                 margin: const EdgeInsets.all(10),
-                decoration: BoxDecoration(border: Border.all()),
-                height: 200,
                 child: TalksWidget(
                   talks: widget.event.talks ?? [],
                 ),
