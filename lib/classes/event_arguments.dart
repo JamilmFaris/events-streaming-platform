@@ -16,6 +16,13 @@ class EventArguments {
       Radius.circular(circular),
     ),
   );
+  static Widget createDateButton({
+    required void Function()? onPressed,
+    required Widget child,
+  }) {
+    return TextButton(onPressed: onPressed, child: child);
+  }
+
   static Widget createTextField({
     bool autofocus = false,
     required TextEditingController controller,

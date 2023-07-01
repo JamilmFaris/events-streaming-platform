@@ -4,10 +4,12 @@ import '../dialogs/input_talk.dart';
 import '../models/event.dart';
 import 'talk_widget.dart';
 
-class TalksWidget extends StatelessWidget {
+class EditTalksWidget extends StatelessWidget {
   List<Talk> talks;
+  void Function(Talk) addTalkToParent;
 
-  TalksWidget({
+  EditTalksWidget({
+    required this.addTalkToParent,
     required this.talks,
     super.key,
   });
@@ -34,25 +36,47 @@ class TalksWidget extends StatelessWidget {
       labeledTalks.add(LabledTalks(key, value));
     });
 
-    return (talks.isEmpty)
-        ? const Center(
-            child: Text(
-              'There are no talks yet',
-              style: TextStyle(fontSize: 20),
-            ),
-          )
-        : ListView.builder(
-            itemBuilder: (_, i) {
-              return ExpansionTile(
+    return ListView.builder(
+      itemBuilder: (_, i) {
+        return (i < labeledTalks.length)
+            ? ExpansionTile(
                 title: Text(labeledTalks[i].label),
                 children: labeledTalks[i]
                     .talks
-                    .map((talk) => TalkWidget(talk: talk))
+                    .map(
+                      (talk) => Dismissible(
+                        key: ValueKey<int>(talk.id!),
+                        child: TalkWidget(talk: talk),
+                        onDismissed: (direction) {},
+                      ),
+                    )
                     .toList(),
+              )
+            : IconButton(
+                onPressed: () => inputTalkDialog(context),
+                icon: const Icon(Icons.add),
               );
-            },
-            itemCount: labeledTalks.length,
-          );
+      },
+      itemCount: labeledTalks.length + 1,
+    );
+  }
+
+  void inputTalkDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => InputTalk(
+        addTalk: addTalk,
+      ),
+    );
+  }
+
+  void addTalk(Talk talk) {
+    //widget.talks.add(talk);the parent has the list of talks and will send it to you in the next build
+    addTalkToParent(talk);
+  }
+
+  bool confirmDelete(BuildContext context) {
+    return true;
   }
 }
 

@@ -1,13 +1,13 @@
-import 'dart:math';
-
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:events_streaming_platform/providers/paginated_events.dart';
 import 'package:flutter/material.dart';
 
 import '../models/event.dart';
+import 'event_edit_widget.dart';
 import 'event_widget.dart';
 
 class PaginatedEventsWidget extends StatefulWidget {
+  bool isEdit;
   Future<List<Event>> Function({
     BuildContext? context,
     required int offset,
@@ -15,6 +15,7 @@ class PaginatedEventsWidget extends StatefulWidget {
   }) getEventsRequest;
   PaginatedEventsWidget({
     required this.getEventsRequest,
+    required this.isEdit,
     super.key,
   });
 
@@ -73,7 +74,9 @@ class _PaginatedEventsWidgetState extends State<PaginatedEventsWidget> {
       builderDelegate: PagedChildBuilderDelegate<Event>(
         itemBuilder: (context, event, index) => SizedBox(
           height: 200,
-          child: EventWidget(event: event),
+          child: (widget.isEdit)
+              ? EventEditWidget(event: event)
+              : EventWidget(event: event),
         ),
       ),
     );

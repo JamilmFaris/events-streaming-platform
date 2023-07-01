@@ -10,7 +10,7 @@ import '../models/user.dart';
 import '../screens/home_screen.dart';
 
 abstract class Request {
-  static String authority = '192.168.43.239:8000';
+  static String authority = '192.168.1.13:8000';
   static String databaseVersion = '/v1';
   static String urlPrefix = '/api';
 
@@ -112,7 +112,9 @@ abstract class Request {
       return;
     }
     var url = Uri.http(
-        authority, '$urlPrefix$databaseVersion/users/${myUser.username}/');
+      authority,
+      '$urlPrefix$databaseVersion/users/${myUser.username}/',
+    );
     var body = {};
     if (firstName.isNotEmpty) {
       body['first_name'] = firstName;
@@ -153,7 +155,6 @@ abstract class Request {
       headers: headers,
     )
         .then((response) async {
-      print('response ${json.decode(response.body)}');
       if (response.statusCode == 200) {
         var j = json.decode(response.body);
         var userJson = j;
@@ -216,19 +217,19 @@ abstract class Request {
         .then((response) async {
       if (response.statusCode == 200) {
         var results = json.decode(response.body) as List;
-        List<Event> curEvents = results.map((element) {
+        Future<List<Event>> curEvents =
+            Future.wait(results.map((element) async {
           Event curEvent = Event.fromJson(element);
           curEvent.picture = 'http://$authority${curEvent.picture}';
-          print('my organized published event pic ${curEvent.picture}');
+          curEvent.talks = await getTalks(context!, curEvent.id, token);
           return curEvent;
-        }).toList();
-        print('curEvents $curEvents');
-
-        curEvents.removeWhere((element) {
-          print(element.isPublished);
-          return !element.isPublished;
+        }).toList());
+        curEvents.then((value) {
+          value.removeWhere((element) {
+            return !element.isPublished;
+          });
+          return value;
         });
-        print('curEvents $curEvents');
         return curEvents;
       } else {
         ScaffoldMessenger.of(context!).showSnackBar(
@@ -237,7 +238,43 @@ abstract class Request {
         return [];
       }
     });
+
     return events;
+  }
+
+  static Future<List<Talk>> getTalks(
+    BuildContext context,
+    int eventId,
+    String token,
+  ) {
+    print('getTalks');
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/events/$eventId/talks/',
+      {'include_all': 'true'},
+    );
+
+    Future<http.Response> res = http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    Future<List<Talk>> talks = res.then((response) {
+      if (response.statusCode == 200) {
+        var results = json.decode(response.body) as List;
+        List<Talk> curTalks = results.map((element) {
+          Talk talk = Talk.fromJson(element);
+          return talk;
+        }).toList();
+        return curTalks;
+      } else {
+        print('talks response ${response.body}');
+        return [];
+      }
+    });
+    return talks;
   }
 
   static Future<List<Event>> getMyOrganizedUnPublishedEvents({
@@ -276,18 +313,20 @@ abstract class Request {
         .then((response) async {
       if (response.statusCode == 200) {
         var results = json.decode(response.body) as List;
-        List<Event> curEvents = results.map((element) {
+        List<Future<Event>> curFutureEvents = results.map((element) async {
           Event curEvent = Event.fromJson(element);
           curEvent.picture = 'http://$authority${curEvent.picture}';
+          List<Talk> talks = await getTalks(context!, curEvent.id, token);
+          curEvent.talks = talks;
           return curEvent;
         }).toList();
-        print('curEvents $curEvents');
-
-        curEvents.removeWhere((element) {
-          return element.isPublished;
+        Future<List<Event>> events = Future.wait(curFutureEvents);
+        events.then((value) {
+          value.removeWhere((element) {
+            return !element.isPublished;
+          });
         });
-        print('curEvents $curEvents');
-        return curEvents;
+        return events;
       } else {
         ScaffoldMessenger.of(context!).showSnackBar(
           const SnackBar(content: Text('there is a problem')),
@@ -303,7 +342,6 @@ abstract class Request {
     required int offset,
     required int limit,
   }) {
-    print('getMyUpcomingEvents');
     return Future.delayed(Duration(seconds: 5)).then((value) {
       var event = Event(
         id: 1,
@@ -323,7 +361,6 @@ abstract class Request {
     required int offset,
     required int limit,
   }) async {
-    print('getPublishedEvents');
     var url = Uri.http(
       authority,
       '$urlPrefix$databaseVersion/events',
@@ -336,9 +373,8 @@ abstract class Request {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-    List<Event> events = await res.then((response) {
+    Future<List<Event>> events = res.then((response) {
       var j = json.decode(response.body);
-      print(j);
       var results = j['results'] as List;
       int count = j['count'];
       // i've consedired that count is the remaining without
@@ -346,9 +382,7 @@ abstract class Request {
       bool hasMoreEvents = (count > 0);
       List<Event> curEvents = results.map((element) {
         Event curEvent = Event.fromJson(element);
-        print('curPublishedEvent picture ${curEvent.picture}');
         return curEvent;
-        //print('event id is ${element['id']}');
       }).toList();
       return curEvents;
     });
@@ -374,8 +408,10 @@ abstract class Request {
       );
       return null;
     }
-    var url =
-        Uri.http(authority, '$urlPrefix$databaseVersion/events/$eventId/talks');
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/events/$eventId/talks',
+    );
     http.post(
       url,
       body: json.encode({
@@ -398,8 +434,12 @@ abstract class Request {
     });
   }
 
-  static postEvent(BuildContext context, String title, String description,
-      XFile file) async {
+  static postEvent(
+    BuildContext context,
+    String title,
+    String description,
+    XFile file,
+  ) async {
     var url = Uri.http(authority, '$urlPrefix$databaseVersion/events/');
     //create multipart request for POST or PATCH method
     var request = http.MultipartRequest("POST", url);
@@ -444,8 +484,95 @@ abstract class Request {
     }
   }
 
-  static void logout() {
+  static void postTalk(
+    BuildContext context,
+    int eventId,
+    Talk talk,
+  ) async {}
+  static Future<void> editEvent(
+    BuildContext context,
+    int eventId,
+    String? title,
+    String? description,
+    DateTime? date,
+    List<Talk>? talks,
+    XFile? picture,
+    bool? isPublished,
+  ) async {
+    User? myUser = await CurrentUser.getUser();
+    if (myUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('please login first')),
+      );
+      return;
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/events/$eventId/',
+    );
+
+    String? token = await Token.getToken();
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('you have to login first')),
+      );
+      return;
+    }
+    var headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    };
+    var body = {};
+    if (title != null) {
+      body['title'] = title;
+    }
+    if (description != null) {
+      body['description'] = description;
+    }
+    /*if (date != null) {
+      body['date'] = date;
+    }*/
+    /*if (talks != null) {
+      body['talks'] = json.encode(talks);
+    }*/
+    if (picture != null) {
+      body['picture'] = picture;
+    }
+    if (isPublished != null) {
+      body['is_published'] = isPublished;
+    }
+    http
+        .patch(
+      url,
+      body: json.encode(body),
+      headers: headers,
+    )
+        .then((response) async {
+      if (response.statusCode == 200) {
+        var j = json.decode(response.body);
+        Event e = Event.fromJson(j);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('event is changed')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('event is not changed')),
+        );
+      }
+    });
+  }
+
+  static void logout() async {
     Token.deleteToken();
     CurrentUser.deleteUser();
+    Uri url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/auth/logout/',
+    );
+    String? token = await Token.getToken();
+    await http.post(url, headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    });
   }
 }

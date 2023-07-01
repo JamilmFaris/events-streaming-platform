@@ -79,22 +79,42 @@ class _InputTalkState extends State<InputTalk> {
     );
   }
 
-  void _presentStartDatePicker() {
-    showDatePicker(
+  void _presentStartDatePicker() async {
+    //to test
+    if (!context.mounted) {
+      return;
+    }
+    final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(
         const Duration(days: 7),
       ), //todo change to be for all the talks to be in interval of 7 days
-    ).then((pickedDate) {
+    ); /*.then((pickedDate) {
       if (pickedDate == null) {
         return;
       }
       setState(() {
         _selectedStartDate = pickedDate;
       });
-    });
+    });*/
+    if (picked != null) {
+      if (!context.mounted) return;
+      final TimeOfDay? timePicked = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+      if (timePicked != null) {
+        _selectedStartDate = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          timePicked.hour,
+          timePicked.minute,
+        );
+      }
+    }
   }
 
   void _presentEndDatePicker() {

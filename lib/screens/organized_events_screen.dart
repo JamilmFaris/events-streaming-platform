@@ -55,6 +55,7 @@ class OrganizedEventsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(9),
               child: PaginatedEventsWidget(
                 getEventsRequest: function,
+                isEdit: true,
               ),
             ),
           ),

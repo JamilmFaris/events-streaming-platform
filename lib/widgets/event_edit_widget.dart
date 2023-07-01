@@ -5,9 +5,9 @@ import 'package:intl/intl.dart';
 import '../models/event.dart';
 import '../screens/edit_event_details_screen.dart';
 
-class EventWidget extends StatelessWidget {
+class EventEditWidget extends StatelessWidget {
   Event event;
-  EventWidget({super.key, required this.event});
+  EventEditWidget({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,7 @@ class EventWidget extends StatelessWidget {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (BuildContext context) => EventDetailsScreen(
+                  builder: (BuildContext context) => EditEventDetailsScreen(
                     event: event,
                   ),
                 ),

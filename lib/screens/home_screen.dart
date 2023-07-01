@@ -15,37 +15,35 @@ class HomeScreen extends StatefulWidget {
   @override
   State<HomeScreen> createState() => _HomeScreenState();
   bool firstBuild = true;
-  bool isGetarguments = true;
+  bool isGetarguments = false;
   bool isGetMyUpcomingEvents = false;
 }
 
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    print('home rebuilt ${widget.firstBuild}');
     String? arguments;
     if (widget.isGetarguments) {
       arguments = ModalRoute.of(context)!.settings.arguments as String?;
     }
     if (arguments != null && arguments == 'logout') {
-      print(arguments);
       setState(() {
         widget.firstBuild = true;
-        widget.isGetarguments = false;
+        widget.isGetarguments = true;
       });
     }
 
     if (widget.firstBuild) {
       CurrentUser.getUser().then((user) {
         Token.getToken().then((token) {
-          if (user != null) {
+          if (user != null && token != null) {
             setState(() {
               widget.drawer = NavDrawer.getDrawer(
                 context,
                 user.username,
                 user.email ?? '',
                 user.avatar ?? '',
-                (token != null),
+                true,
               );
             });
           } else {
@@ -109,10 +107,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         ? PaginatedEventsWidget(
                             key: const ValueKey(1),
                             getEventsRequest: Request.getMyUpcomingEvents,
+                            isEdit: false,
                           )
                         : PaginatedEventsWidget(
                             key: const ValueKey(2),
                             getEventsRequest: Request.getPublishedEvents,
+                            isEdit: false,
                           ),
                   ),
                 ),

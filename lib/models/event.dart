@@ -33,6 +33,20 @@ class Event {
       isPublished: json['is_published'],
     );
   }
+  @override
+  String toString() {
+    final m = {
+      'name': 'event',
+      'id': id,
+      'title': title,
+      'organizer': organizerName,
+      'description': description,
+      'picture': picture,
+      'date': Helper.getFormattedDateString(date),
+      'is_published': isPublished,
+    };
+    return m.toString();
+  }
 }
 
 class Talk {
@@ -60,6 +74,26 @@ class Talk {
     this.status = TalkStatus.pending,
   }) {
     speaker = User(username: speakerUsername);
+  }
+  factory Talk.fromJson(Map<String, dynamic> json) {
+    var speakerJson = json['speaker'];
+    var statusString = json['status'];
+    TalkStatus status;
+    if (statusString == 'pending') {
+      status = TalkStatus.pending;
+    } else if (statusString == 'rejected') {
+      status = TalkStatus.rejected;
+    } else {
+      status = TalkStatus.approved;
+    }
+    return Talk(
+      id: json['id'],
+      title: json['title'],
+      speaker: User.fromJson(speakerJson),
+      start: Helper.getFormattedDate(json['start']),
+      end: Helper.getFormattedDate(json['end']),
+      status: status,
+    );
   }
 }
 
