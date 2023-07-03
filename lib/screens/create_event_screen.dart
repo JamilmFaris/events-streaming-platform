@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:events_streaming_platform/models/event.dart';
+import 'package:events_streaming_platform/screens/home_screen.dart';
+import 'package:events_streaming_platform/screens/organized_events_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -113,5 +115,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       descriptionController.text,
       image!,
     );
+    Navigator.pushNamed(context, OrganizedEventsScreen.routeName);
   }
 }
