@@ -17,18 +17,20 @@ class OrganizedEventsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: TwColors.backgroundColor(context),
       appBar: AppBar(title: const Text('My organized events')),
-      body: Column(children: [
-        getPaginatedOrganizedEvents(
-          context,
-          'published',
-          Request.getMyOrganizedPublishedEvents,
-        ),
-        getPaginatedOrganizedEvents(
-          context,
-          'unpublished',
-          Request.getMyOrganizedUnPublishedEvents,
-        ),
-      ]),
+      body: Column(
+        children: [
+          getPaginatedOrganizedEvents(
+            context,
+            'published',
+            Request.getMyOrganizedPublishedEvents,
+          ),
+          getPaginatedOrganizedEvents(
+            context,
+            'unpublished',
+            Request.getMyOrganizedUnPublishedEvents,
+          ),
+        ],
+      ),
     );
   }
 
@@ -46,16 +48,21 @@ class OrganizedEventsScreen extends StatelessWidget {
             text,
             textAlign: TextAlign.start,
             style: TextStyle(
-              fontSize: 20,
+              fontSize: 30,
               backgroundColor: TwColors.primaryColor(context),
+              fontWeight: FontWeight.bold,
             ),
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(9),
-              child: PaginatedEventsWidget(
-                getEventsRequest: function,
-                isEdit: true,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(border: Border.all(width: 2.0)),
+              child: Padding(
+                padding: const EdgeInsets.all(9),
+                child: PaginatedEventsWidget(
+                  getEventsRequest: function,
+                  isEdit: true,
+                ),
               ),
             ),
           ),
