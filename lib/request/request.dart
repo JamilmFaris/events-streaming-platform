@@ -56,14 +56,11 @@ abstract class Request {
         );
 
         await CurrentUser.storeUser(user);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('logged in as ${user.username}')),
-        );
+        if (!context.mounted) return;
+        showMessage(context, 'logged in as ${user.username}');
         Navigator.of(context).pushNamed(HomeScreen.routeName);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('wrong credentials')),
-        );
+        showMessage(context, 'wrong credentials');
       }
     });
   }
@@ -106,9 +103,8 @@ abstract class Request {
   ) async {
     User? myUser = await CurrentUser.getUser();
     if (myUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('please login first')),
-      );
+      if (!context.mounted) return;
+      showMessage(context, 'please login first');
       return;
     }
     var url = Uri.http(
@@ -139,9 +135,8 @@ abstract class Request {
     }
     String? token = await Token.getToken();
     if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('you have to login first')),
-      );
+      if (!context.mounted) return;
+      showLoginFirstMessage(context);
       return;
     }
     var headers = {
@@ -168,15 +163,10 @@ abstract class Request {
           headline: userJson['headline'],
         );
         await CurrentUser.storeUser(user);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('account ${user.username} changed successfully')),
-        );
+        showMessage(context, 'account ${user.username} changed successfully');
         Navigator.of(context).pushNamed(HomeScreen.routeName);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('account is not changed')),
-        );
+        showMessage(context, 'account is not changed');
       }
     });
   }
@@ -188,16 +178,13 @@ abstract class Request {
   }) async {
     String? token = await Token.getToken();
     if (token == null) {
-      ScaffoldMessenger.of(context!).showSnackBar(
-        const SnackBar(content: Text('you have to login first')),
-      );
+      if (!context!.mounted) return [];
+      showLoginFirstMessage(context);
       return [];
     }
     User? myUser = await CurrentUser.getUser();
     if (myUser == null) {
-      ScaffoldMessenger.of(context!).showSnackBar(
-        const SnackBar(content: Text('please login first')),
-      );
+      showLoginFirstMessage(context!);
       return [];
     }
     var url = Uri.http(
@@ -232,9 +219,7 @@ abstract class Request {
         });
         return curEvents;
       } else {
-        ScaffoldMessenger.of(context!).showSnackBar(
-          const SnackBar(content: Text('there is a problem')),
-        );
+        showProblemMessage(context!, response.body);
         return [];
       }
     });
@@ -247,7 +232,6 @@ abstract class Request {
     int eventId,
     String token,
   ) {
-    print('getTalks');
     var url = Uri.http(
       authority,
       '$urlPrefix$databaseVersion/events/$eventId/talks/',
@@ -270,7 +254,6 @@ abstract class Request {
         }).toList();
         return curTalks;
       } else {
-        print('talks response ${response.body}');
         return [];
       }
     });
@@ -284,16 +267,12 @@ abstract class Request {
   }) async {
     String? token = await Token.getToken();
     if (token == null) {
-      ScaffoldMessenger.of(context!).showSnackBar(
-        const SnackBar(content: Text('you have to login first')),
-      );
+      showLoginFirstMessage(context!);
       return [];
     }
     User? myUser = await CurrentUser.getUser();
     if (myUser == null) {
-      ScaffoldMessenger.of(context!).showSnackBar(
-        const SnackBar(content: Text('please login first')),
-      );
+      showLoginFirstMessage(context!);
       return [];
     }
     var url = Uri.http(
@@ -323,14 +302,12 @@ abstract class Request {
         Future<List<Event>> events = Future.wait(curFutureEvents);
         events.then((value) {
           value.removeWhere((element) {
-            return !element.isPublished;
+            return element.isPublished;
           });
         });
         return events;
       } else {
-        ScaffoldMessenger.of(context!).showSnackBar(
-          const SnackBar(content: Text('there is a problem')),
-        );
+        showProblemMessage(context!, response.body);
         return [];
       }
     });
@@ -477,9 +454,7 @@ abstract class Request {
       ));
       return j['id'];
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('there is some problem'),
-      ));
+      showProblemMessage(context, responseString);
       return null;
     }
   }
@@ -501,9 +476,8 @@ abstract class Request {
   ) async {
     User? myUser = await CurrentUser.getUser();
     if (myUser == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('please login first')),
-      );
+      if (!context.mounted) return;
+      showLoginFirstMessage(context);
       return;
     }
     var url = Uri.http(
@@ -513,9 +487,8 @@ abstract class Request {
 
     String? token = await Token.getToken();
     if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('you have to login first')),
-      );
+      if (!context.mounted) return;
+      showLoginFirstMessage(context);
       return;
     }
     var headers = {
@@ -551,13 +524,9 @@ abstract class Request {
       if (response.statusCode == 200) {
         var j = json.decode(response.body);
         Event e = Event.fromJson(j);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('event is changed')),
-        );
+        showMessage(context, 'event is changed');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('event is not changed')),
-        );
+        showMessage(context, 'event is not changed');
       }
     });
   }
@@ -574,5 +543,26 @@ abstract class Request {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
     });
+  }
+
+  static void showMessage(BuildContext context, String text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(text)),
+    );
+  }
+
+  static void showLoginFirstMessage(BuildContext context) {
+    showMessage(context, 'you have to login first');
+  }
+
+  static void showProblemMessage(BuildContext context, String text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          text,
+          style: const TextStyle(color: Colors.red),
+        ),
+      ),
+    );
   }
 }
