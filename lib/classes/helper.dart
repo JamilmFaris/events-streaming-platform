@@ -15,7 +15,7 @@ abstract class Helper {
   }
 
   static DateTime getFormattedDate(String date) {
-    return DateFormat('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'').parse(date);
+    return DateTime.parse(date);
   }
 
   static Widget getSizedImage(
