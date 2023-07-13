@@ -54,7 +54,6 @@ class _PaginatedEventsWidgetState extends State<PaginatedEventsWidget> {
         offset: _paginatedEvents.currentIndex,
         limit: _LIMIT,
       );
-      print('fetch');
       final isLastPage = newItems.length < _LIMIT;
       if (isLastPage) {
         _pagingController.appendLastPage(newItems);
@@ -69,17 +68,21 @@ class _PaginatedEventsWidgetState extends State<PaginatedEventsWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return PagedListView<int, Event>(
-      pagingController: _pagingController,
-      builderDelegate: PagedChildBuilderDelegate<Event>(
-        itemBuilder: (context, event, index) => SizedBox(
-          height: 200,
-          child: (widget.isEdit)
-              ? EventEditWidget(event: event)
-              : EventWidget(event: event),
+    return PagedGridView<int, Event>(
+        pagingController: _pagingController,
+        builderDelegate: PagedChildBuilderDelegate<Event>(
+          itemBuilder: (context, event, index) => SizedBox(
+            height: 200,
+            child: (widget.isEdit)
+                ? EventEditWidget(event: event)
+                : EventWidget(event: event),
+          ),
         ),
-      ),
-    );
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+        ));
   }
 
   @override

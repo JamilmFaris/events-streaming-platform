@@ -2,6 +2,7 @@ import 'package:events_streaming_platform/screens/event_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../classes/helper.dart';
 import '../models/event.dart';
 import '../screens/edit_event_details_screen.dart';
 
@@ -25,16 +26,19 @@ class EventEditWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              child: Container(
-                child: Image.network(
-                  event.picture,
-                  fit: BoxFit.cover,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  child: Image.network(
+                    event.picture,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),
           ),
           Text(event.title),
-          Text(DateFormat.yMMMMEEEEd().format(event.date))
+          Text(Helper.getFormattedDateWithTime(event.date))
         ],
       ),
     );

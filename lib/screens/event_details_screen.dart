@@ -2,6 +2,8 @@ import 'package:events_streaming_platform/design/tw_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../classes/event_arguments.dart';
+import '../classes/helper.dart';
 import '../models/event.dart';
 import '../widgets/talks_widget.dart';
 
@@ -19,44 +21,80 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     Size screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: TwColors.backgroundColor(context),
       appBar: AppBar(
-        title: Text('event ${widget.event.title}'),
+        title: Text('event : ${widget.event.title}'),
       ),
-      body: Container(
-        alignment: Alignment.center,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            children: [
-              SizedBox(
-                height: 0.25 * screenSize.height,
-                width: 0.25 * screenSize.width,
-                child: Image.network(
-                  widget.event.picture,
+      body: Stack(
+        children: [
+          ColorFiltered(
+            colorFilter: ColorFilter.mode(
+              Colors.black.withOpacity(0.4),
+              BlendMode.dstATop,
+            ),
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(widget.event.picture),
                   fit: BoxFit.cover,
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.all(10),
-                child: TalksWidget(
-                  talks: widget.event.talks ?? [],
-                ),
-              ),
-              Text(
-                widget.event.title,
-                style: const TextStyle(fontSize: 20),
-              ),
-              Container(
-                margin: const EdgeInsets.all(10),
-                child: Text(
-                  DateFormat.yMMMMEEEEd().format(widget.event.date),
-                  style: const TextStyle(fontSize: 20),
-                ),
-              )
-            ],
+            ),
           ),
-        ),
+          Container(
+            alignment: Alignment.center,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        border: Border.all(),
+                        color: TwColors.backgroundColor(context),
+                      ),
+                      child: Text(
+                        'organizer : ${widget.event.organizerName}',
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.all(10),
+                      child: TalksWidget(
+                        talks: widget.event.talks ?? [],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        border: Border.all(),
+                        color: TwColors.backgroundColor(context),
+                      ),
+                      child: Text(
+                        'description : ${widget.event.description}',
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        border: Border.all(),
+                        color: TwColors.backgroundColor(context),
+                      ),
+                      child: Text(
+                        'starts at : ${Helper.getFormattedDateWithTime(widget.event.date)}',
+                        style: const TextStyle(fontSize: 20),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
       ),
     );
   }

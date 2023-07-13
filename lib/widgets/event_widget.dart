@@ -2,6 +2,7 @@ import 'package:events_streaming_platform/screens/event_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../classes/helper.dart';
 import '../models/event.dart';
 import '../screens/edit_event_details_screen.dart';
 
@@ -11,31 +12,37 @@ class EventWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (BuildContext context) => EventDetailsScreen(
-                    event: event,
+    return Container(
+      decoration: BoxDecoration(border: Border.all()),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute<void>(
+                    builder: (BuildContext context) => EventDetailsScreen(
+                      event: event,
+                    ),
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    child: Image.network(
+                      event.picture,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
-              child: Container(
-                child: Image.network(
-                  event.picture,
-                  fit: BoxFit.cover,
-                ),
-              ),
             ),
-          ),
-          Text(event.title),
-          Text(DateFormat.yMMMMEEEEd().format(event.date))
-        ],
+            Text(event.title),
+            Text(Helper.getFormattedDateWithTime(event.date))
+          ],
+        ),
       ),
     );
   }

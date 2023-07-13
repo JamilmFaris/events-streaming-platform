@@ -55,8 +55,13 @@ class OrganizedEventsScreen extends StatelessWidget {
           ),
           Expanded(
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              decoration: BoxDecoration(border: Border.all(width: 2.0)),
+              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
+              decoration: BoxDecoration(
+                border: Border.symmetric(
+                  horizontal: BorderSide(width: 2.0),
+                  vertical: BorderSide(width: 2.0),
+                ),
+              ),
               child: Padding(
                 padding: const EdgeInsets.all(9),
                 child: PaginatedEventsWidget(

@@ -74,4 +74,8 @@ abstract class Helper {
       }
     }
   }
+
+  static String getFormattedDateWithTime(DateTime date) {
+    return DateFormat('yyyy-MM-dd\nHH:mm:ss').format(date);
+  }
 }

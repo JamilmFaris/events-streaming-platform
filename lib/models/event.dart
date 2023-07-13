@@ -29,7 +29,7 @@ class Event {
       organizerName: json['organizer'],
       description: json['description'],
       picture: json['picture'],
-      date: DateTime.now() /*Helper.format.parse(json['date'])*/,
+      date: Helper.format.parse(json['started_at']),
       isPublished: json['is_published'],
     );
   }
