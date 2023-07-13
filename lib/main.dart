@@ -1,6 +1,5 @@
 import 'package:events_streaming_platform/screens/create_event_screen.dart';
 import 'package:events_streaming_platform/screens/organized_events_screen.dart';
-import 'package:events_streaming_platform/widgets/paginated_events_widget.dart';
 import 'package:flutter/material.dart';
 import 'classes/nav_drawer.dart';
 import 'design/styles.dart';

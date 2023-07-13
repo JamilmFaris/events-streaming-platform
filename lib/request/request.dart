@@ -318,19 +318,51 @@ abstract class Request {
     BuildContext? context,
     required int offset,
     required int limit,
-  }) {
-    return Future.delayed(Duration(seconds: 5)).then((value) {
-      var event = Event(
-        id: 1,
-        title: 'title',
-        organizerName: 'organizerName',
-        description: 'description',
-        picture: "https://loremflickr.com/320/240/dog",
-        date: DateTime.now(),
-        isPublished: false,
-      );
-      return [event, event];
+  }) async {
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!context!.mounted) return [];
+      showLoginFirstMessage(context);
+      return [];
+    }
+    User? myUser = await CurrentUser.getUser();
+    if (myUser == null) {
+      showLoginFirstMessage(context!);
+      return [];
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/users/${myUser.username}/booked-events/',
+      {'limit': limit.toString(), 'offset': offset.toString()},
+    );
+
+    var headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    };
+    Future<List<Event>> events = http
+        .get(
+      url,
+      headers: headers,
+    )
+        .then((response) async {
+      if (response.statusCode == 200) {
+        var results = json.decode(response.body) as List;
+        Future<List<Event>> curEvents =
+            Future.wait(results.map((element) async {
+          Event curEvent = Event.fromJson(element);
+          curEvent.picture = 'http://$authority${curEvent.picture}';
+          curEvent.talks = await getTalks(context!, curEvent.id, token);
+          return curEvent;
+        }).toList());
+        return curEvents;
+      } else {
+        showProblemMessage(context!, response.body);
+        return [];
+      }
     });
+
+    return events;
   }
 
   static Future<List<Event>> getPublishedEvents({
@@ -531,7 +563,7 @@ abstract class Request {
     });
   }
 
-  static void logout() async {
+  static void logout(BuildContext context) async {
     Token.deleteToken();
     CurrentUser.deleteUser();
     Uri url = Uri.http(
@@ -539,10 +571,13 @@ abstract class Request {
       '$urlPrefix$databaseVersion/auth/logout/',
     );
     String? token = await Token.getToken();
-    await http.post(url, headers: {
+    return await http.post(url, headers: {
       'Content-Type': 'application/json; charset=UTF-8',
       'Authorization': 'Bearer $token',
-    });
+    }).then((value) => {
+          if (value.statusCode == 204)
+            if (context.mounted) showMessage(context, 'logged out')
+        });
   }
 
   static void showMessage(BuildContext context, String text) {

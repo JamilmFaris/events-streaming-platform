@@ -110,7 +110,7 @@ class NavDrawer {
               leading: Icon(routeDetails.icon),
               onTap: () {
                 if (routeDetails.name == 'logout') {
-                  Request.logout();
+                  Request.logout(context);
                   Navigator.pushNamed(
                     context,
                     routeDetails.routeName,
