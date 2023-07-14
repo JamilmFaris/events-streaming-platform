@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../request/request.dart';
 import '../screens/edit_account_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/invitations_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/signup_screen.dart';
 import '/classes/route_details.dart';
@@ -84,6 +85,11 @@ class NavDrawer {
       routeName: HomeScreen.routeName,
       icon: Icons.logout,
     );
+    var invitaionsRoute = RouteDetails(
+      name: 'invitations',
+      routeName: InvitationsScreen.routeName,
+      icon: Icons.insert_invitation,
+    );
 
     var header = userAccountsDrawerHeader(username, email, avatarSource);
     if (isLoggedIn) {
@@ -94,6 +100,7 @@ class NavDrawer {
       routesDetails.add(createEventRoute);
       routesDetails.add(myOrganizedEventsRoute);
       routesDetails.add(logoutRoute);
+      routesDetails.add(invitaionsRoute);
     } else {
       routesDetails = [homepageRoute];
       routesDetails.add(loginRoute);

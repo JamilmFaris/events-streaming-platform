@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import '../classes/helper.dart';
 import '../models/user.dart';
 import '../screens/home_screen.dart';
+import '../screens/invitations_screen.dart';
 
 abstract class Request {
   static String authority = '192.168.1.5:8000';
@@ -32,7 +33,7 @@ abstract class Request {
         var userToken = j['token'];
         var userTokenExpiryDateJson = j['expiry'];
         DateTime userTokenExpiryDate =
-            Helper.format.parse(userTokenExpiryDateJson);
+            Helper.format2.parse(userTokenExpiryDateJson);
         await Token.storeToken(userToken, userTokenExpiryDate);
         User user = User(
           firstName: userJson['first_name'],
@@ -173,7 +174,8 @@ abstract class Request {
     }
     User? myUser = await CurrentUser.getUser();
     if (myUser == null) {
-      showLoginFirstMessage(context!);
+      if (!context!.mounted) return [];
+      showLoginFirstMessage(context);
       return [];
     }
     var url = Uri.http(
@@ -436,6 +438,63 @@ abstract class Request {
     });
   }
 
+  static Future<bool> changeTalkStatus({
+    required BuildContext context,
+    required int talkId,
+    required TalkStatus wantedStatus,
+  }) async {
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!context.mounted) return false;
+      showLoginFirstMessage(context);
+      return false;
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/talks/$talkId/',
+    );
+
+    var headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    };
+    var body = {};
+    if (wantedStatus == TalkStatus.approved) {
+      body = {'status': 'approved'};
+    } else {
+      body = {'status': 'rejected'};
+    }
+    return http
+        .patch(
+      url,
+      body: json.encode(body),
+      headers: headers,
+    )
+        .then((response) {
+      if (response.statusCode == 200) {
+        if (!context.mounted) return false;
+        var message = (wantedStatus == TalkStatus.approved)
+            ? 'talk approved'
+            : 'talk rejected';
+        showMessage(
+          context,
+          message,
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => InvitationsScreen(),
+          ),
+        );
+        return true;
+      } else {
+        if (!context.mounted) return false;
+        showProblemMessage(context, 'an error occured');
+        return false;
+      }
+    });
+  }
+
   static postEvent(
     BuildContext context,
     String title,
@@ -547,6 +606,50 @@ abstract class Request {
         showMessage(context, 'event is not changed');
       }
     });
+  }
+
+  static Future<List<Talk>> getInvitations(BuildContext context) async {
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!context.mounted) return [];
+      showLoginFirstMessage(context);
+      return [];
+    }
+    User? myUser = await CurrentUser.getUser();
+    if (myUser == null) {
+      showLoginFirstMessage(context);
+      return [];
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/users/${myUser.username}/talks/',
+    );
+
+    Future<http.Response> res = http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    Future<List<Talk>> invitations = res.then((response) {
+      if (response.statusCode == 200) {
+        print('getInvitations ${json.decode(response.body)}');
+        var results = json.decode(response.body) as List;
+        List<Talk> curInvitations = results.map((element) {
+          Talk invitation = Talk.invitationFromJson(
+            element,
+            myUser.username,
+          );
+          return invitation;
+        }).toList();
+        return curInvitations;
+      } else {
+        print('get invitations error returned ${response.body}');
+        return [];
+      }
+    });
+    return invitations;
   }
 
   static void logout(BuildContext context) async {

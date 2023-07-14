@@ -42,6 +42,10 @@ class LoginScreen extends StatelessWidget {
                 usernameController.text,
                 passwordController.text,
               );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text('enter required information'),
+              ));
             }
           },
           child: const Text('login'),

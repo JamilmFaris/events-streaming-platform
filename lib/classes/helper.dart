@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 abstract class Helper {
   static DateFormat format = DateFormat('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
+  static DateFormat format2 = DateFormat('yyyy-MM-dd\'T\'HH:mm:ss.SSSSSS\'Z\'');
   static String capitalize(String subject) {
     if (subject.isEmpty) {
       return '';
