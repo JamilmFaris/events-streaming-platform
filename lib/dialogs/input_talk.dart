@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../models/event.dart';
+import '../request/request.dart';
 
 class InputTalk extends StatefulWidget {
   void Function(Talk) addTalk;
-  InputTalk({required this.addTalk, super.key});
+  int eventId;
+  InputTalk({required this.eventId, required this.addTalk, super.key});
 
   @override
   State<InputTalk> createState() => _InputTalkState();
@@ -49,7 +51,7 @@ class _InputTalkState extends State<InputTalk> {
                         onPressed: _presentStartDatePicker,
                         child: Text(
                           _selectedStartDate == null
-                              ? 'No date chosen!'
+                              ? 'pick a start date'
                               : 'Picked date : ${DateFormat.yMd().format(_selectedStartDate!)}',
                         ),
                       ),
@@ -59,7 +61,7 @@ class _InputTalkState extends State<InputTalk> {
                         onPressed: _presentEndDatePicker,
                         child: Text(
                           _selectedEndDate == null
-                              ? 'No date chosen!'
+                              ? 'pick an end date'
                               : 'Picked date : ${DateFormat.yMd().format(_selectedEndDate!)}',
                         ),
                       ),
@@ -80,7 +82,6 @@ class _InputTalkState extends State<InputTalk> {
   }
 
   void _presentStartDatePicker() async {
-    //to test
     if (!context.mounted) {
       return;
     }
@@ -91,14 +92,7 @@ class _InputTalkState extends State<InputTalk> {
       lastDate: DateTime.now().add(
         const Duration(days: 7),
       ), //todo change to be for all the talks to be in interval of 7 days
-    ); /*.then((pickedDate) {
-      if (pickedDate == null) {
-        return;
-      }
-      setState(() {
-        _selectedStartDate = pickedDate;
-      });
-    });*/
+    );
     if (picked != null) {
       if (!context.mounted) return;
       final TimeOfDay? timePicked = await showTimePicker(
@@ -106,13 +100,15 @@ class _InputTalkState extends State<InputTalk> {
         initialTime: TimeOfDay.now(),
       );
       if (timePicked != null) {
-        _selectedStartDate = DateTime(
-          picked.year,
-          picked.month,
-          picked.day,
-          timePicked.hour,
-          timePicked.minute,
-        );
+        setState(() {
+          _selectedStartDate = DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            timePicked.hour,
+            timePicked.minute,
+          );
+        });
       }
     }
   }
@@ -132,18 +128,31 @@ class _InputTalkState extends State<InputTalk> {
         initialDate: _selectedStartDate!.add(const Duration(seconds: 1)),
         firstDate: _selectedStartDate!.add(const Duration(seconds: 1)),
         lastDate: DateTime.now().add(Duration(days: 7)),
-      ).then((pickedDate) {
-        if (pickedDate == null) {
-          return;
+      ).then((pickedDate) async {
+        if (pickedDate != null) {
+          if (!context.mounted) return;
+          final TimeOfDay? timePicked = await showTimePicker(
+            context: context,
+            initialTime: TimeOfDay.now(),
+          );
+          if (timePicked != null) {
+            _selectedStartDate = DateTime(
+              pickedDate.year,
+              pickedDate.month,
+              pickedDate.day,
+              timePicked.hour,
+              timePicked.minute,
+            );
+          }
+          setState(() {
+            _selectedEndDate = pickedDate;
+          });
         }
-        setState(() {
-          _selectedEndDate = pickedDate;
-        });
       });
     }
   }
 
-  void _submitData() {
+  Future<void> _submitData() async {
     if (_talkTitleController.text.isEmpty ||
         _speakerUserController.text.isEmpty ||
         _selectedStartDate == null ||
@@ -160,13 +169,25 @@ class _InputTalkState extends State<InputTalk> {
     String enteredSpeakerUsername = _speakerUserController.text;
     DateTime enteredStartDate = _selectedStartDate!;
     DateTime enteredEndDate = _selectedEndDate!;
-    print(enteredStartDate);
-    widget.addTalk(Talk.addTalkUsingSpeakerUsername(
-      title: enteredTitle,
-      speakerUsername: enteredSpeakerUsername,
-      start: enteredStartDate,
-      end: enteredEndDate,
-    ));
-    Navigator.of(context).pop();
+    int? talkId = await Request.addTalk(
+      context,
+      widget.eventId,
+      enteredSpeakerUsername,
+      enteredTitle,
+      enteredStartDate,
+      enteredEndDate,
+    );
+    if (talkId != null) {
+      widget.addTalk(Talk.addTalkUsingSpeakerUsername(
+        id: talkId,
+        title: enteredTitle,
+        speakerUsername: enteredSpeakerUsername,
+        eventId: widget.eventId,
+        start: enteredStartDate,
+        end: enteredEndDate,
+      ));
+      if (!context.mounted) return;
+      Navigator.of(context).pop();
+    }
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 abstract class Helper {
-  static DateFormat format = DateFormat('yyyy-MM-dd\'T\'HH:mm:ss.SSS\'Z\'');
+  static DateFormat format = DateFormat('yyyy-MM-dd\'T\'HH:mm:ss\'Z\'');
   static String capitalize(String subject) {
     if (subject.isEmpty) {
       return '';

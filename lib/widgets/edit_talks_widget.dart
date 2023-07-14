@@ -6,9 +6,11 @@ import 'talk_widget.dart';
 
 class EditTalksWidget extends StatelessWidget {
   List<Talk> talks;
+  int eventId;
   void Function(Talk) addTalkToParent;
 
   EditTalksWidget({
+    required this.eventId,
     required this.addTalkToParent,
     required this.talks,
     super.key,
@@ -87,6 +89,7 @@ class EditTalksWidget extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       builder: (_) => InputTalk(
+        eventId: eventId,
         addTalk: addTalk,
       ),
     );

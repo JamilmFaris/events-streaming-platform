@@ -65,6 +65,7 @@ class _EditEventDetailsScreenState extends State<EditEventDetailsScreen> {
                   ),
                 ),
                 EditTalksWidget(
+                  eventId: widget.event.id,
                   addTalkToParent: addTalk,
                   talks: widget.event.talks ?? [],
                 ),

@@ -23,6 +23,7 @@ class Event {
     this.talks,
   });
   factory Event.fromJson(Map<String, dynamic> json) {
+    print(json['started_at']);
     return Event(
       id: json['id'],
       title: json['title'],
@@ -56,12 +57,14 @@ class Talk {
   DateTime start;
   DateTime end;
   TalkStatus status;
+  int eventId;
   Talk({
     this.id,
     required this.title,
     required this.speaker,
     required this.start,
     required this.end,
+    required this.eventId,
     this.status = TalkStatus.pending,
   });
 
@@ -72,6 +75,7 @@ class Talk {
     required this.start,
     required this.end,
     this.status = TalkStatus.pending,
+    required this.eventId,
   }) {
     speaker = User(username: speakerUsername);
   }
@@ -89,7 +93,29 @@ class Talk {
     return Talk(
       id: json['id'],
       title: json['title'],
+      eventId: json['event'],
       speaker: User.fromJson(speakerJson),
+      start: Helper.getFormattedDate(json['start']),
+      end: Helper.getFormattedDate(json['end']),
+      status: status,
+    );
+  }
+  factory Talk.invitationFromJson(
+      Map<String, dynamic> json, String myUsername) {
+    var statusString = json['status'];
+    TalkStatus status;
+    if (statusString == 'pending') {
+      status = TalkStatus.pending;
+    } else if (statusString == 'rejected') {
+      status = TalkStatus.rejected;
+    } else {
+      status = TalkStatus.approved;
+    }
+    return Talk.addTalkUsingSpeakerUsername(
+      id: json['id'],
+      title: json['title'],
+      eventId: json['event'],
+      speakerUsername: myUsername,
       start: Helper.getFormattedDate(json['start']),
       end: Helper.getFormattedDate(json['end']),
       status: status,
