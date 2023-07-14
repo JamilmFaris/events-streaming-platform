@@ -10,20 +10,9 @@ import '../models/user.dart';
 import '../screens/home_screen.dart';
 
 abstract class Request {
-  static String authority = '192.168.1.13:8000';
+  static String authority = '192.168.1.5:8000';
   static String databaseVersion = '/v1';
   static String urlPrefix = '/api';
-
-  static String pic = "https://loremflickr.com/320/240/dog";
-  static Event event = Event(
-    id: 1,
-    title: "event title",
-    date: DateTime.now(),
-    description: "desc",
-    organizerName: "jamil",
-    picture: pic,
-    isPublished: false,
-  );
 
   static void login(BuildContext context, String userName, String password) {
     var url = Uri.http(authority, '$urlPrefix$databaseVersion/auth/login');
@@ -60,7 +49,7 @@ abstract class Request {
         showMessage(context, 'logged in as ${user.username}');
         Navigator.of(context).pushNamed(HomeScreen.routeName);
       } else {
-        showMessage(context, 'wrong credentials');
+        showProblemMessage(context, 'wrong credentials');
       }
     });
   }
@@ -219,7 +208,12 @@ abstract class Request {
         });
         return curEvents;
       } else {
-        showProblemMessage(context!, response.body);
+        var res = json.decode(response.body);
+        if (res['detail'] == 'Invalid token.') {
+          showLoginFirstMessage(context!);
+        } else {
+          showProblemMessage(context!, 'problem occured');
+        }
         return [];
       }
     });
@@ -382,18 +376,21 @@ abstract class Request {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!context!.mounted) return [];
+      showLoginFirstMessage(context);
+      return [];
+    }
     Future<List<Event>> events = res.then((response) {
       var j = json.decode(response.body);
       var results = j['results'] as List;
-      int count = j['count'];
-      // i've consedired that count is the remaining without
-      //the ones that I have in my response
-      bool hasMoreEvents = (count > 0);
-      List<Event> curEvents = results.map((element) {
+      List<Future<Event>> curEvents = results.map((element) async {
         Event curEvent = Event.fromJson(element);
+        curEvent.talks = await getTalks(context!, curEvent.id, token);
         return curEvent;
       }).toList();
-      return curEvents;
+      return Future.wait(curEvents);
     });
     return events;
   }
@@ -409,25 +406,21 @@ abstract class Request {
   ) async {
     String? token = await Token.getToken();
     if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('you have to login first'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+      if (!context.mounted) return null;
+      showLoginFirstMessage(context);
       return null;
     }
     var url = Uri.http(
       authority,
-      '$urlPrefix$databaseVersion/events/$eventId/talks',
+      '$urlPrefix$databaseVersion/events/$eventId/talks/',
     );
     http.post(
       url,
       body: json.encode({
         'speaker': speakerUsername,
         'title': talkTitle,
-        'start': start.toString(),
-        'end': end.toString(),
+        'start': Helper.getFormattedDateString(start),
+        'end': Helper.getFormattedDateString(end),
       }),
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
@@ -489,11 +482,6 @@ abstract class Request {
     }
   }
 
-  static void postTalk(
-    BuildContext context,
-    int eventId,
-    Talk talk,
-  ) async {}
   static Future<void> editEvent(
     BuildContext context,
     int eventId,
