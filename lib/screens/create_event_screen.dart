@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../classes/event_arguments.dart';
+import '../classes/helper.dart';
 import '../design/tw_colors.dart';
 import '../request/request.dart';
 
@@ -20,6 +21,39 @@ class CreateEventScreen extends StatefulWidget {
 }
 
 class _CreateEventScreenState extends State<CreateEventScreen> {
+  DateTime? _selectedDate;
+  void _presentStartDatePicker() async {
+    if (!context.mounted) {
+      return;
+    }
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now().add(const Duration(seconds: 1)),
+      firstDate: DateTime.now().add(const Duration(seconds: 1)),
+      lastDate: DateTime.now().add(
+        const Duration(days: 1000),
+      ),
+    );
+    if (picked != null) {
+      if (!context.mounted) return;
+      final TimeOfDay? timePicked = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+      if (timePicked != null) {
+        setState(() {
+          _selectedDate = DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            timePicked.hour,
+            timePicked.minute,
+          );
+        });
+      }
+    }
+  }
+
   TextEditingController nameController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   List<Talk> talks = [];
@@ -53,6 +87,24 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           EventArguments.createTextField(
             controller: descriptionController,
             textType: 'description',
+          ),
+          TextButton(
+            onPressed: _presentStartDatePicker,
+            child: (_selectedDate == null)
+                ? Row(
+                    children: const [
+                      Icon(
+                        Icons.calendar_today,
+                        color: Colors.black,
+                      ),
+                      Text(
+                        'pick a start date for the event',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  )
+                : Text(
+                    'picked date is\n${Helper.getFormattedDateWithTime(_selectedDate!)}'),
           ),
           EventArguments.EventFilledButton(
             onPressed: () => addEvent(context),
@@ -109,11 +161,18 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       ));
       return;
     }
+    if (_selectedDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('pick a start date for the event first'),
+      ));
+      return;
+    }
     Request.postEvent(
       context,
       nameController.text,
       descriptionController.text,
       image!,
+      _selectedDate!,
     );
     Navigator.pushNamed(context, OrganizedEventsScreen.routeName);
   }

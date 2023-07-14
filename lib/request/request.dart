@@ -448,25 +448,24 @@ abstract class Request {
     String title,
     String description,
     XFile file,
+    DateTime start,
   ) async {
     var url = Uri.http(authority, '$urlPrefix$databaseVersion/events/');
-    //create multipart request for POST or PATCH method
     var request = http.MultipartRequest("POST", url);
 
     var fields = {
       'title': title,
       'description': description,
+      'started_at': Helper.getFormattedDateString(start),
     };
     request.fields.addAll(fields);
 
-    //create multipart using filepath, string or bytes
     var pic = await http.MultipartFile.fromPath("picture", file.path);
     request.files.add(pic);
     String? token = await Token.getToken();
     if (token == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('you\'re not logged in yet'),
-      ));
+      if (!context.mounted) return;
+      showLoginFirstMessage(context);
       return;
     }
     var headers = {
@@ -476,16 +475,15 @@ abstract class Request {
     request.headers.addAll(headers);
     var response = await request.send();
 
-    //Get the response from the server
     var responseData = await response.stream.toBytes();
     var responseString = String.fromCharCodes(responseData);
     if (response.statusCode == 201) {
       var j = json.decode(responseString);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('event added to archived'),
-      ));
+      if (!context.mounted) return;
+      showMessage(context, 'event added to archived');
       return j['id'];
     } else {
+      if (!context.mounted) return;
       showProblemMessage(context, responseString);
       return null;
     }
