@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../dialogs/input_talk.dart';
 import '../models/event.dart';
+import '../request/request.dart';
 import 'talk_widget.dart';
 
 class EditTalksWidget extends StatelessWidget {
@@ -69,7 +70,10 @@ class EditTalksWidget extends StatelessWidget {
                                     (talk) => Dismissible(
                                       key: ValueKey<int>(talk.id!),
                                       child: TalkWidget(talk: talk),
-                                      onDismissed: (direction) {},
+                                      confirmDismiss: (direction) async {
+                                        return await confirmDelete(
+                                            context, talk.id!);
+                                      },
                                     ),
                                   )
                                   .toList(),
@@ -100,8 +104,29 @@ class EditTalksWidget extends StatelessWidget {
     addTalkToParent(talk);
   }
 
-  bool confirmDelete(BuildContext context) {
-    return true;
+  Future<bool?> confirmDelete(BuildContext context, int talkId) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context1) {
+        return AlertDialog(
+          title: const Text("Are you sure?"),
+          actions: [
+            TextButton(
+              child: const Text("Yes"),
+              onPressed: () async {
+                await Request.deleteTalk(context1, talkId);
+              },
+            ),
+            TextButton(
+              child: const Text("No"),
+              onPressed: () {
+                Navigator.of(context1).pop(false);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 

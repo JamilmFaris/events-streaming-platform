@@ -1,6 +1,7 @@
 import 'package:events_streaming_platform/models/current_user.dart';
 import 'package:events_streaming_platform/models/event.dart';
 import 'package:events_streaming_platform/models/token.dart';
+import 'package:events_streaming_platform/screens/organized_events_screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -226,8 +227,13 @@ abstract class Request {
   static Future<List<Talk>> getTalks(
     BuildContext context,
     int eventId,
-    String token,
-  ) {
+    String? token,
+  ) async {
+    token ??= await Token.getToken();
+    if (token == null) {
+      if (!context.mounted) return [];
+      showLoginFirstMessage(context);
+    }
     var url = Uri.http(
       authority,
       '$urlPrefix$databaseVersion/events/$eventId/talks/',
@@ -389,7 +395,6 @@ abstract class Request {
       var results = j['results'] as List;
       List<Future<Event>> curEvents = results.map((element) async {
         Event curEvent = Event.fromJson(element);
-        curEvent.talks = await getTalks(context!, curEvent.id, token);
         return curEvent;
       }).toList();
       return Future.wait(curEvents);
@@ -461,7 +466,7 @@ abstract class Request {
     var body = {};
     if (wantedStatus == TalkStatus.approved) {
       body = {'status': 'approved'};
-    } else {
+    } else if (wantedStatus == TalkStatus.rejected) {
       body = {'status': 'rejected'};
     }
     return http
@@ -491,6 +496,43 @@ abstract class Request {
         if (!context.mounted) return false;
         showProblemMessage(context, 'an error occured');
         return false;
+      }
+    });
+  }
+
+  static Future<void> deleteTalk(BuildContext context, int talkId) async {
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!context.mounted) return;
+      showLoginFirstMessage(context);
+      return;
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/talks/$talkId/',
+    );
+    return await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    ).then((value) {
+      if (value.statusCode == 204) {
+        showMessage(context, 'talk deleted succesfully');
+        Navigator.popUntil(
+          context,
+          (route) => !Navigator.canPop(context),
+          //pop until you cannot pop (HomeScreen)
+        );
+        Navigator.pushNamed(
+          context,
+          OrganizedEventsScreen.routeName,
+        );
+        return;
+      } else {
+        showProblemMessage(context, 'talk is not deleted');
+        return;
       }
     });
   }
@@ -634,7 +676,6 @@ abstract class Request {
     );
     Future<List<Talk>> invitations = res.then((response) {
       if (response.statusCode == 200) {
-        print('getInvitations ${json.decode(response.body)}');
         var results = json.decode(response.body) as List;
         List<Talk> curInvitations = results.map((element) {
           Talk invitation = Talk.invitationFromJson(
@@ -645,7 +686,6 @@ abstract class Request {
         }).toList();
         return curInvitations;
       } else {
-        print('get invitations error returned ${response.body}');
         return [];
       }
     });
