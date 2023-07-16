@@ -23,14 +23,19 @@ class Event {
     this.talks,
   });
   factory Event.fromJson(Map<String, dynamic> json) {
-    print(json['started_at']);
+    DateTime date;
+    try {
+      date = Helper.format.parse(json['started_at']);
+    } catch (e) {
+      date = Helper.format2.parse(json['started_at']);
+    }
     return Event(
       id: json['id'],
       title: json['title'],
       organizerName: json['organizer'],
       description: json['description'],
       picture: json['picture'],
-      date: Helper.format.parse(json['started_at']),
+      date: date,
       isPublished: json['is_published'],
     );
   }
