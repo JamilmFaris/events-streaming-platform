@@ -12,7 +12,7 @@ import '../screens/home_screen.dart';
 import '../screens/invitations_screen.dart';
 
 abstract class Request {
-  static String authority = '192.168.1.5:8000';
+  static String authority = '192.168.1.5:8080';
   static String databaseVersion = '/v1';
   static String urlPrefix = '/api';
 
@@ -50,8 +50,10 @@ abstract class Request {
         if (!context.mounted) return;
         showMessage(context, 'logged in as ${user.username}');
         Navigator.of(context).pushNamed(HomeScreen.routeName);
-      } else {
+      } else if (response.statusCode >= 400) {
         showProblemMessage(context, 'wrong credentials');
+      } else {
+        showProblemMessage(context, 'an error occured');
       }
     });
   }
@@ -199,7 +201,6 @@ abstract class Request {
         Future<List<Event>> curEvents =
             Future.wait(results.map((element) async {
           Event curEvent = Event.fromJson(element);
-          curEvent.picture = 'http://$authority${curEvent.picture}';
           curEvent.talks = await getTalks(context!, curEvent.id, token);
           return curEvent;
         }).toList());
@@ -296,7 +297,6 @@ abstract class Request {
         var results = json.decode(response.body) as List;
         List<Future<Event>> curFutureEvents = results.map((element) async {
           Event curEvent = Event.fromJson(element);
-          curEvent.picture = 'http://$authority${curEvent.picture}';
           List<Talk> talks = await getTalks(context!, curEvent.id, token);
           curEvent.talks = talks;
           return curEvent;
@@ -353,7 +353,6 @@ abstract class Request {
         Future<List<Event>> curEvents =
             Future.wait(results.map((element) async {
           Event curEvent = Event.fromJson(element);
-          curEvent.picture = 'http://$authority${curEvent.picture}';
           curEvent.talks = await getTalks(context!, curEvent.id, token);
           return curEvent;
         }).toList());
@@ -377,7 +376,7 @@ abstract class Request {
       '$urlPrefix$databaseVersion/events',
       {'limit': limit.toString(), 'offset': offset.toString()},
     );
-
+    print('get published events');
     Future<http.Response> res = http.get(
       url,
       headers: {
@@ -395,6 +394,7 @@ abstract class Request {
       var results = j['results'] as List;
       List<Future<Event>> curEvents = results.map((element) async {
         Event curEvent = Event.fromJson(element);
+        curEvent.talks = await getTalks(context!, curEvent.id, token);
         return curEvent;
       }).toList();
       return Future.wait(curEvents);
@@ -648,6 +648,101 @@ abstract class Request {
         showMessage(context, 'event is not changed');
       }
     });
+  }
+
+  static Future<bool> bookEvent({
+    required BuildContext context,
+    required int eventId,
+  }) async {
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!context.mounted) return false;
+      showLoginFirstMessage(context);
+      return false;
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/events/$eventId/bookings/',
+    );
+    return await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    ).then((response) {
+      print(response.statusCode);
+      if (response.statusCode == 204) {
+        if (!context.mounted) return false;
+        showMessage(context, 'event booked');
+        return true;
+      } else if (response.statusCode == 409) {
+        showProblemMessage(context, 'you\'ve already booked this event');
+        return false;
+      } else {
+        showProblemMessage(context, 'event isn\'t booked');
+        return false;
+      }
+    });
+  }
+
+  static Future<bool> cancelBookingEvent({
+    required BuildContext context,
+    required int eventId,
+  }) async {
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!context.mounted) return false;
+      showLoginFirstMessage(context);
+      return false;
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/events/$eventId/bookings/',
+    );
+    return await http.delete(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    ).then((value) {
+      if (value.statusCode == 204) {
+        if (!context.mounted) return true;
+        showMessage(context, 'event booking canceled');
+        return true;
+      } else {
+        showProblemMessage(context, 'event isn\'t canceled');
+        return false;
+      }
+    });
+  }
+
+  static Future<bool> isEventBooked(
+    BuildContext context,
+    int eventId,
+  ) async {
+    int offset = 0, limit = 20;
+    List<Event> events = [];
+    List<Event> curEvents = await getMyUpcomingEvents(
+      context: context,
+      offset: offset,
+      limit: limit,
+    );
+    while (curEvents.length >= limit) {
+      events.addAll(curEvents);
+      offset += limit;
+      curEvents = await getMyUpcomingEvents(
+        offset: offset,
+        limit: limit,
+      );
+    }
+    for (var event in events) {
+      if (event.id == eventId) {
+        return true;
+      }
+    }
+    return false;
   }
 
   static Future<List<Talk>> getInvitations(BuildContext context) async {
