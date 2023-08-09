@@ -12,7 +12,7 @@ import '../screens/home_screen.dart';
 import '../screens/invitations_screen.dart';
 
 abstract class Request {
-  static String authority = '192.168.1.5:8080';
+  static String authority = '192.168.1.9:8080';
   static String databaseVersion = '/v1';
   static String urlPrefix = '/api';
 
@@ -349,7 +349,8 @@ abstract class Request {
     )
         .then((response) async {
       if (response.statusCode == 200) {
-        var results = json.decode(response.body) as List;
+        final j = json.decode(response.body);
+        var results = j['results'] as List;
         Future<List<Event>> curEvents =
             Future.wait(results.map((element) async {
           Event curEvent = Event.fromJson(element);
@@ -374,7 +375,11 @@ abstract class Request {
     var url = Uri.http(
       authority,
       '$urlPrefix$databaseVersion/events',
-      {'limit': limit.toString(), 'offset': offset.toString()},
+      {
+        'limit': limit.toString(),
+        'offset': offset.toString(),
+        'only_upcoming': true.toString(),
+      },
     );
     print('get published events');
     Future<http.Response> res = http.get(
@@ -729,13 +734,14 @@ abstract class Request {
       offset: offset,
       limit: limit,
     );
+    events.addAll(curEvents);
     while (curEvents.length >= limit) {
-      events.addAll(curEvents);
       offset += limit;
       curEvents = await getMyUpcomingEvents(
         offset: offset,
         limit: limit,
       );
+      events.addAll(curEvents);
     }
     for (var event in events) {
       if (event.id == eventId) {

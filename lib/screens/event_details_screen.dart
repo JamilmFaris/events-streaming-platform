@@ -134,6 +134,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                                         context: context,
                                         eventId: widget.event.id,
                                       );
+                                setState(() {});
                               },
                               child: (isBooked)
                                   ? const Text('cancel booking')
