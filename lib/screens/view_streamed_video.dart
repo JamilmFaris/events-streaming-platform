@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import '../design/tw_colors.dart';
+import '../models/event.dart';
+import '../request/request.dart';
 
 class ViewStreamedVideoScreen extends StatefulWidget {
-  const ViewStreamedVideoScreen({super.key});
+  static const String routeName = '/view-streamed-video';
+  final List<Talk> talks;
+  ViewStreamedVideoScreen({required this.talks, super.key});
 
   @override
   State<ViewStreamedVideoScreen> createState() =>
@@ -13,8 +17,7 @@ class ViewStreamedVideoScreen extends StatefulWidget {
 
 class _ViewStreamedVideoScreenState extends State<ViewStreamedVideoScreen> {
   bool isFullscreen = false;
-  Uri dataSource = Uri.parse(
-      'https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8');
+
   late VideoPlayerController _videoPlayerController;
   @override
   void initState() {
@@ -23,10 +26,23 @@ class _ViewStreamedVideoScreenState extends State<ViewStreamedVideoScreen> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    _videoPlayerController = VideoPlayerController.networkUrl(dataSource)
-      ..initialize().then((value) {
-        setState(() {});
-      });
+    List<int> ids = [];
+    widget.talks.forEach((element) {
+      if(element.end.is)
+    });
+    dataSource = Uri.parse(widget.url);
+
+    _videoPlayerController = VideoPlayerController.networkUrl(
+      Uri.parse('http://192.168.1.9:8080/live/15.m3u8'),
+      httpHeaders: {
+        'Authorization':
+            'Bearer a915a768bc3debab8b7ff356d64441f3686d91ae5bbdcf220843ee348e877cdd',
+      },
+    );
+    _videoPlayerController.initialize().then((value) {
+      setState(() {});
+    });
+    print('headers ${_videoPlayerController.httpHeaders}');
 
     super.initState();
   }

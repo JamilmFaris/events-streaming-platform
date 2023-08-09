@@ -1,6 +1,7 @@
 import 'package:events_streaming_platform/screens/create_event_screen.dart';
 import 'package:events_streaming_platform/screens/invitations_screen.dart';
 import 'package:events_streaming_platform/screens/organized_events_screen.dart';
+import 'package:events_streaming_platform/screens/view_streamed_video.dart';
 import 'package:flutter/material.dart';
 import 'classes/nav_drawer.dart';
 import 'design/styles.dart';
@@ -43,7 +44,9 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       routes: {
-        HomeScreen.routeName: (_) => HomeScreen(),
+        HomeScreen.routeName: (_) => ViewStreamedVideoScreen(
+              url: 'http://192.168.1.9:8080/live/15.m3u8',
+            ),
         SignupScreen.routeName: (_) => SignupScreen(),
         LoginScreen.routeName: (_) => LoginScreen(),
         EditAccountScreen.routeName: (_) => EditAccountScreen(),

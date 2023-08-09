@@ -1,4 +1,5 @@
 import 'package:events_streaming_platform/design/tw_colors.dart';
+import 'package:events_streaming_platform/screens/view_streamed_video.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -40,6 +41,14 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => ViewStreamedVideoScreen(
+          url: 'http://0.0.0.0:8080/live/14.m3u8',
+        ),
+      ),
+    );
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(

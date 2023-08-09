@@ -12,7 +12,7 @@ import '../screens/home_screen.dart';
 import '../screens/invitations_screen.dart';
 
 abstract class Request {
-  static String authority = '192.168.1.5:8080';
+  static String authority = '192.168.1.9:8080';
   static String databaseVersion = '/v1';
   static String urlPrefix = '/api';
 
