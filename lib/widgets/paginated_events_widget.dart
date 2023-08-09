@@ -24,22 +24,12 @@ class PaginatedEventsWidget extends StatefulWidget {
 }
 
 class _PaginatedEventsWidgetState extends State<PaginatedEventsWidget> {
-  var event = Event(
-    id: 1,
-    title: 'title',
-    organizerName: 'organizerName',
-    description: 'description',
-    picture: "https://loremflickr.com/320/240/dog",
-    date: DateTime.now(),
-    isPublished: false,
-  );
   static const _LIMIT = 10;
   late PagingController<int, Event> _pagingController;
   PaginatedEvents _paginatedEvents = PaginatedEvents();
 
   @override
   void initState() {
-    print('init');
     _pagingController = PagingController<int, Event>(firstPageKey: 0);
     _pagingController.addPageRequestListener((pageKey) {
       _fetchPage(pageKey);
@@ -63,6 +53,7 @@ class _PaginatedEventsWidgetState extends State<PaginatedEventsWidget> {
       }
     } catch (error) {
       _pagingController.error = error;
+      print('error $error');
     }
   }
 
