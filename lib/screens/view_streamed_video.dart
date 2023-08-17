@@ -7,8 +7,8 @@ import '../request/request.dart';
 
 class ViewStreamedVideoScreen extends StatefulWidget {
   static const String routeName = '/view-streamed-video';
-  final List<Talk> talks;
-  ViewStreamedVideoScreen({required this.talks, super.key});
+  final int talkId = 24;
+  ViewStreamedVideoScreen({super.key});
 
   @override
   State<ViewStreamedVideoScreen> createState() =>
@@ -26,14 +26,9 @@ class _ViewStreamedVideoScreenState extends State<ViewStreamedVideoScreen> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    List<int> ids = [];
-    widget.talks.forEach((element) {
-      if(element.end.is)
-    });
-    dataSource = Uri.parse(widget.url);
 
     _videoPlayerController = VideoPlayerController.networkUrl(
-      Uri.parse('http://192.168.1.9:8080/live/15.m3u8'),
+      Uri.parse('http://192.168.1.9:8080/live/${widget.talkId}.m3u8'),
       httpHeaders: {
         'Authorization':
             'Bearer a915a768bc3debab8b7ff356d64441f3686d91ae5bbdcf220843ee348e877cdd',

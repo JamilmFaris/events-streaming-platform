@@ -44,9 +44,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.dark,
       ),
       routes: {
-        HomeScreen.routeName: (_) => ViewStreamedVideoScreen(
-              url: 'http://192.168.1.9:8080/live/15.m3u8',
-            ),
+        HomeScreen.routeName: (_) => ViewStreamedVideoScreen(),
         SignupScreen.routeName: (_) => SignupScreen(),
         LoginScreen.routeName: (_) => LoginScreen(),
         EditAccountScreen.routeName: (_) => EditAccountScreen(),

@@ -44,9 +44,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) => ViewStreamedVideoScreen(
-          url: 'http://0.0.0.0:8080/live/14.m3u8',
-        ),
+        builder: (BuildContext context) => ViewStreamedVideoScreen(),
       ),
     );
     Size screenSize = MediaQuery.of(context).size;
