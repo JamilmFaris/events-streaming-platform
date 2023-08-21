@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import '../design/tw_colors.dart';
 import '../request/request.dart';
+import '../widgets/chat_widget.dart';
 
 class ViewStreamedVideoScreen extends StatefulWidget {
   static const String routeName = '/view-streamed-video';
@@ -25,19 +26,24 @@ class _ViewStreamedVideoScreenState extends State<ViewStreamedVideoScreen> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-
     Request.getTalkKey(context).then((key) {
       if (key != null) {
+        print('talk key is $key');
         _videoPlayerController = VideoPlayerController.networkUrl(
           Uri.parse(
             'http://${Request.authority}/live/${widget.talkId}.m3u8?token=$key',
           ),
         );
+      } else {
+        print('key is null');
       }
     }).then((value) {
-      _videoPlayerController!.initialize().then((value) {
-        setState(() {});
-      });
+      print('video is null ${_videoPlayerController == null}');
+      if (_videoPlayerController != null) {
+        _videoPlayerController!.initialize().then((value) {
+          setState(() {});
+        });
+      }
     });
 
     super.initState();
@@ -64,110 +70,114 @@ class _ViewStreamedVideoScreenState extends State<ViewStreamedVideoScreen> {
     });
   }
 
-  void exitFullScreen() {
-    setState(() async {
-      print('exit fullscreen');
-      await SystemChrome.setPreferredOrientations(
-          [DeviceOrientation.portraitUp]);
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-          overlays: SystemUiOverlay.values);
+  Future<void> exitFullScreen() async {
+    print('exit fullscreen');
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values);
+    setState(() {
       isFullScreen = false;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final additionalSize = MediaQuery.of(context).padding.top +
-        MediaQuery.of(context).padding.bottom +
-        48;
     return Scaffold(
       backgroundColor: TwColors.backgroundColor(context),
-      appBar: isFullScreen
-          ? null
-          : AppBar(
-              title: const Text(
-                'Your video',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
-                ),
-              ),
-            ),
       body: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
         return _videoPlayerController == null
             ? const Center(child: CircularProgressIndicator())
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  _videoPlayerController!.value.isInitialized
-                      ? SizedBox(
-                          width: double.infinity,
-                          height: constraints.maxHeight - additionalSize,
-                          child: Stack(
-                            fit: StackFit.expand,
-                            children: [
-                              AspectRatio(
-                                aspectRatio:
-                                    _videoPlayerController!.value.aspectRatio,
-                                child: VideoPlayer(_videoPlayerController!),
-                              ),
-                              Positioned(
-                                bottom: 0,
-                                right: 0,
-                                child: IconButton(
-                                  icon: const Icon(
-                                    Icons.fullscreen,
-                                    color: Colors.white,
+            : SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _videoPlayerController!.value.isInitialized
+                        ? Column(children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).padding.top,
+                            ),
+                            SizedBox(
+                              width: double.infinity,
+                              height: isFullScreen
+                                  ? constraints.maxHeight
+                                  : constraints.maxHeight / 3,
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  AspectRatio(
+                                    aspectRatio: _videoPlayerController!
+                                        .value.aspectRatio,
+                                    child: VideoPlayer(_videoPlayerController!),
                                   ),
-                                  onPressed: toggleFullscreen,
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      : const Center(child: CircularProgressIndicator()),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          _videoPlayerController!
-                              .seekTo(const Duration(seconds: -10));
-                        },
-                        icon: const Icon(
-                          Icons.skip_previous,
-                          color: Colors.white,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          _videoPlayerController!.value.isPlaying
-                              ? _videoPlayerController!.pause()
-                              : _videoPlayerController!.play();
-                          setState(() {});
-                        },
-                        icon: Icon(
-                          _videoPlayerController!.value.isPlaying
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                          color: Colors.white,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          _videoPlayerController!
-                              .seekTo(const Duration(seconds: 10));
-                        },
-                        icon: const Icon(
-                          Icons.skip_next,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.fullscreen,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: toggleFullscreen,
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            _videoPlayerController!.seekTo(
+                                                const Duration(seconds: -10));
+                                          },
+                                          icon: const Icon(
+                                            Icons.skip_previous,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            _videoPlayerController!
+                                                    .value.isPlaying
+                                                ? _videoPlayerController!
+                                                    .pause()
+                                                : _videoPlayerController!
+                                                    .play();
+                                            setState(() {});
+                                          },
+                                          icon: Icon(
+                                            _videoPlayerController!
+                                                    .value.isPlaying
+                                                ? Icons.pause
+                                                : Icons.play_arrow,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            _videoPlayerController!.seekTo(
+                                                const Duration(seconds: 10));
+                                          },
+                                          icon: const Icon(
+                                            Icons.skip_next,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ])
+                        : const Center(child: CircularProgressIndicator()),
+                    ChatWidget(talkId: widget.talkId),
+                  ],
+                ),
               );
       }),
     );

@@ -12,7 +12,7 @@ import '../screens/home_screen.dart';
 import '../screens/invitations_screen.dart';
 
 abstract class Request {
-  static String authority = '192.168.1.9:8080';
+  static String authority = '10.5.50.109:8080';
   static String databaseVersion = '/v1';
   static String urlPrefix = '/api';
 
@@ -80,7 +80,17 @@ abstract class Request {
         'Content-Type': 'application/json; charset=UTF-8',
       },
     ).then((response) async {
-      login(context, username, password);
+      if (response.statusCode == 200) {
+        login(context, username, password);
+      } else if (response.statusCode == 400) {
+        var jsonBody = json.decode(response.body);
+        if (jsonBody['username'] ==
+            'A user with that username already exists.') {
+          showProblemMessage(context, jsonBody['username']);
+        }
+      } else {
+        showProblemMessage(context, 'an error occured');
+      }
     });
   }
 
@@ -88,8 +98,6 @@ abstract class Request {
     BuildContext context,
     String firstName,
     String lastName,
-    String userName,
-    String email,
     String password,
     String bio,
     String headline,
@@ -110,12 +118,6 @@ abstract class Request {
     }
     if (lastName.isNotEmpty) {
       body['last_name'] = lastName;
-    }
-    if (userName.isNotEmpty) {
-      body['user_name'] = userName;
-    }
-    if (email.isNotEmpty) {
-      body['email'] = email;
     }
     if (password.isNotEmpty) {
       body['password'] = password;
@@ -516,7 +518,7 @@ abstract class Request {
     }
     var url = Uri.http(
       authority,
-      '$urlPrefix$databaseVersion/users/{username}/play-stream-key/',
+      '$urlPrefix$databaseVersion/users/${myUser.username}/play-stream-key/',
     );
 
     String? token = await Token.getToken();
@@ -539,7 +541,7 @@ abstract class Request {
         var responseBody = json.decode(response.body);
         return responseBody['play_stream_key'];
       } else {
-        showProblemMessage(context, response.body);
+        showProblemMessage(context, json.decode(response.body)['detail']);
         print('error occured ${response.body}');
         return null;
       }

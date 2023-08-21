@@ -25,8 +25,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
     double imageHeight = 100;
     TextEditingController firstNameController = TextEditingController(),
         lastNameController = TextEditingController(),
-        userNameController = TextEditingController(),
-        emailController = TextEditingController(),
         passwordController = TextEditingController(),
         verifyPasswordController = TextEditingController(),
         bioController = TextEditingController(),
@@ -65,17 +63,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                 textInputAction: TextInputAction.next,
               ),
               AuthArguments.authTextField(
-                controller: userNameController,
-                textType: 'username',
-                textInputAction: TextInputAction.next,
-              ),
-              AuthArguments.authTextField(
-                controller: emailController,
-                textType: 'email',
-                textInputType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-              ),
-              AuthArguments.authTextField(
                 controller: passwordController,
                 textType: 'password',
                 obscureText: true,
@@ -102,8 +89,6 @@ class _EditAccountScreenState extends State<EditAccountScreen> {
                     context,
                     firstNameController.text,
                     lastNameController.text,
-                    userNameController.text,
-                    emailController.text,
                     passwordController.text,
                     bioController.text,
                     headlineController.text,
