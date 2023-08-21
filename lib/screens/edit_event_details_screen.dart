@@ -31,6 +31,7 @@ class _EditEventDetailsScreenState extends State<EditEventDetailsScreen> {
   bool isPublished = false;
   @override
   Widget build(BuildContext context) {
+    isPublished = widget.event.isPublished;
     double imageWidth = 100, imageHeight = 100;
     Image addImage = Image.asset('assets/images/add_image.png');
     Size screenSize = MediaQuery.of(context).size;
