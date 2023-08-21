@@ -41,12 +41,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => ViewStreamedVideoScreen(),
-      ),
-    );
     Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -63,6 +57,18 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             return Text('error ${snapshot.error}');
           } else if (snapshot.connectionState == ConnectionState.done &&
               snapshot.hasData) {
+            widget.event.talks?.forEach((talk) {
+              if (talk.start.isBefore(DateTime.now()) &&
+                  talk.end.isAfter(DateTime.now())) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        ViewStreamedVideoScreen(talkId: talk.id!),
+                  ),
+                );
+              }
+            });
             return Stack(
               children: [
                 ColorFiltered(
