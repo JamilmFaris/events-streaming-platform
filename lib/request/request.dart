@@ -500,6 +500,45 @@ abstract class Request {
     });
   }
 
+  static Future<String?> getTalkKey(BuildContext context) async {
+    User? myUser = await CurrentUser.getUser();
+    if (myUser == null) {
+      if (!context.mounted) return null;
+      showLoginFirstMessage(context);
+      return null;
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/users/{username}/play-stream-key/',
+    );
+
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!context.mounted) return null;
+      showLoginFirstMessage(context);
+      return '';
+    }
+    var headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    };
+    return http
+        .get(
+      url,
+      headers: headers,
+    )
+        .then((response) {
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        return responseBody['play_stream_key'];
+      } else {
+        showProblemMessage(context, response.body);
+        print('error occured ${response.body}');
+        return null;
+      }
+    });
+  }
+
   static Future<void> deleteTalk(BuildContext context, int talkId) async {
     String? token = await Token.getToken();
     if (token == null) {
