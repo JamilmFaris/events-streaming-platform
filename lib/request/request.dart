@@ -546,6 +546,51 @@ abstract class Request {
     });
   }
 
+  static Future<String> getChatKey(
+    BuildContext context,
+  ) async {
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!context.mounted) return '';
+      showLoginFirstMessage(context);
+      return '';
+    }
+    User? myUser = await CurrentUser.getUser();
+    if (myUser == null) {
+      showLoginFirstMessage(context);
+      return '';
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/users/${myUser.username}/chat-key/',
+    );
+
+    Future<http.Response> res = http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    return res.then((response) {
+      var body = json.decode(response.body);
+      if (response.statusCode == 200) {
+        return body['chat_key'];
+      } else if (body['details'] == 'Invalid token.') {
+        showLoginFirstMessage(context);
+        return '';
+      } else if (body['details'] ==
+          'You do not have permission to perform this action.') {
+        showLoginFirstMessage(context);
+        return '';
+      } //you can't have an invalid token because you're using the same username for the token
+      else {
+        showLoginFirstMessage(context);
+        return '';
+      } //repeated to give more details about what's happening
+    });
+  }
+
   static Future<void> deleteTalk(BuildContext context, int talkId) async {
     String? token = await Token.getToken();
     if (token == null) {
