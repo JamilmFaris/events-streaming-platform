@@ -27,35 +27,36 @@ class _InvitationWidgetState extends State<InvitationWidget> {
     return Column(
       children: [
         TalkWidget(key: super.widget.key, talk: widget.talk),
-        EventArguments.EventFilledButton(
-          onPressed: () {
-            if (widget.talk.status == TalkStatus.pending) {
-              Request.changeTalkStatus(
-                context: context,
-                talkId: widget.talk.id!,
-                wantedStatus: TalkStatus.approved,
-              );
-            } else if (widget.talk.status == TalkStatus.approved) {
-              Request.changeTalkStatus(
-                context: context,
-                talkId: widget.talk.id!,
-                wantedStatus: TalkStatus.rejected,
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                content: Text(
-                  'Changing status from rejected to approved is not allowed.',
-                ),
-              ));
-            }
-          },
-          child: (widget.talk.status == TalkStatus.rejected)
-              ? const Text(
-                  'REJECTED',
-                  style: TextStyle(color: Colors.red),
-                )
-              : Text(buttonText),
-        )
+        if (widget.talk.start.isAfter(DateTime.now()))
+          EventArguments.EventFilledButton(
+            onPressed: () {
+              if (widget.talk.status == TalkStatus.pending) {
+                Request.changeTalkStatus(
+                  context: context,
+                  talkId: widget.talk.id!,
+                  wantedStatus: TalkStatus.approved,
+                );
+              } else if (widget.talk.status == TalkStatus.approved) {
+                Request.changeTalkStatus(
+                  context: context,
+                  talkId: widget.talk.id!,
+                  wantedStatus: TalkStatus.rejected,
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text(
+                    'Changing status from rejected to approved is not allowed.',
+                  ),
+                ));
+              }
+            },
+            child: (widget.talk.status == TalkStatus.rejected)
+                ? const Text(
+                    'REJECTED',
+                    style: TextStyle(color: Colors.red),
+                  )
+                : Text(buttonText),
+          )
       ],
     );
   }
