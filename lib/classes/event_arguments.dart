@@ -52,11 +52,24 @@ class EventArguments {
     ]);
   }
 
-  static EventFilledButton({
+  static eventFilledButton({
     required Function() onPressed,
     required Widget child,
   }) {
     return FilledButton(
+      onPressed: onPressed,
+      child: child,
+    );
+  }
+
+  static deleteButton({
+    required Function() onPressed,
+    required Widget child,
+  }) {
+    return FilledButton(
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(Colors.red),
+      ),
       onPressed: onPressed,
       child: child,
     );

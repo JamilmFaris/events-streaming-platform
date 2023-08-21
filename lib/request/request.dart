@@ -203,6 +203,7 @@ abstract class Request {
         var results = responseBody['results'] as List;
         Future<List<Event>> curEvents =
             Future.wait(results.map((element) async {
+          element['is_booked'] = false;
           Event curEvent = Event.fromJson(element);
           curEvent.talks = await getTalks(context!, curEvent.id, token);
           return curEvent;
@@ -262,6 +263,7 @@ abstract class Request {
         var responseBody = json.decode(response.body) as Map<String, dynamic>;
         var results = responseBody['results'] as List;
         List<Future<Event>> curFutureEvents = results.map((element) async {
+          element['is_booked'] = false;
           Event curEvent = Event.fromJson(element);
           List<Talk> talks = await getTalks(context!, curEvent.id, token);
           curEvent.talks = talks;
@@ -357,6 +359,7 @@ abstract class Request {
         var results = j['results'] as List;
         Future<List<Event>> curEvents =
             Future.wait(results.map((element) async {
+          element['is_booked'] = true;
           Event curEvent = Event.fromJson(element);
           curEvent.talks = await getTalks(context!, curEvent.id, token);
           return curEvent;
@@ -743,6 +746,31 @@ abstract class Request {
     });
   }
 
+  static Future<void> deleteEvent(BuildContext context, eventId) async {
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/events/$eventId/',
+    );
+
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!context.mounted) return;
+      showLoginFirstMessage(context);
+      return;
+    }
+    var headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    };
+    return http.delete(url, headers: headers).then((response) {
+      if (response.statusCode == 203) {
+        showMessage(context, 'event deleted Successfully');
+      } else if (response.statusCode == 403) {
+        showProblemMessage(context, json.decode(response.body)['detail']);
+      }
+    });
+  }
+
   static Future<bool> bookEvent({
     required BuildContext context,
     required int eventId,
@@ -815,26 +843,28 @@ abstract class Request {
     BuildContext context,
     int eventId,
   ) async {
-    int offset = 0, limit = 20;
-    List<Event> events = [];
-    List<Event> curEvents = await getMyUpcomingEvents(
-      context: context,
-      offset: offset,
-      limit: limit,
-    );
-    events.addAll(curEvents);
-    while (curEvents.length >= limit) {
-      offset += limit;
-      curEvents = await getMyUpcomingEvents(
-        offset: offset,
-        limit: limit,
-      );
-      events.addAll(curEvents);
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!context.mounted) return false;
+      showLoginFirstMessage(context);
+      return false;
     }
-    for (var event in events) {
-      if (event.id == eventId) {
-        return true;
-      }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/events/$eventId/',
+    );
+    var res = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+    if (res.statusCode == 200) {
+      return json.decode(res.body)['is_booked'];
+    } else {
+      if (!context.mounted) return false;
+      showLoginFirstMessage(context);
     }
     return false;
   }

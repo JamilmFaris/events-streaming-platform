@@ -29,6 +29,7 @@ class _EditEventDetailsScreenState extends State<EditEventDetailsScreen> {
       descriptionController = TextEditingController();
   DateTime? _selectedStartDate;
   bool isPublished = false;
+  bool firstBuild = true;
   @override
   Widget build(BuildContext context) {
     isPublished = widget.event.isPublished;
@@ -99,12 +100,13 @@ class _EditEventDetailsScreenState extends State<EditEventDetailsScreen> {
                       onChanged: (value) {
                         setState(() {
                           isPublished = value;
+                          widget.event.isPublished = value;
                         });
                       },
                     )
                   ],
                 ),
-                EventArguments.EventFilledButton(
+                EventArguments.eventFilledButton(
                   onPressed: () {
                     Event before = widget.event;
                     int id = before.id;
@@ -130,6 +132,51 @@ class _EditEventDetailsScreenState extends State<EditEventDetailsScreen> {
                   },
                   child: const Text('edit event'),
                 ),
+                const SizedBox(height: 10),
+                EventArguments.deleteButton(
+                    onPressed: () async {
+                      var result = await showDialog(
+                        context: context,
+                        builder: (_) {
+                          return AlertDialog(
+                            title: const Text('Confirmation'),
+                            content:
+                                const Text('are you sure you want to delete?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  // Handle 'Yes' button press
+                                  Navigator.of(context).pop(
+                                      true); // Return true to indicate 'Yes'
+                                },
+                                child: const Text('Yes'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  // Handle 'No' button press
+                                  Navigator.of(context).pop(
+                                      false); // Return false to indicate 'No'
+                                },
+                                child: const Text('No'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      if (result) {
+                        if (!mounted) return;
+                        await Request.deleteEvent(context, widget.event.id);
+                        if (!mounted) return;
+                        Navigator.pushReplacementNamed(
+                          context,
+                          HomeScreen.routeName,
+                        );
+                      }
+                    },
+                    child: const Text(
+                      'delete event',
+                      style: TextStyle(color: Colors.black),
+                    ))
               ],
             ),
           ),

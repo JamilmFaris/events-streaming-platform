@@ -3,15 +3,6 @@ import 'package:flutter/material.dart';
 import '../models/event.dart';
 
 class PaginatedEvents with ChangeNotifier {
-  var event = Event(
-    id: 1,
-    title: 'title',
-    organizerName: 'organizerName',
-    description: 'description',
-    picture: 'https://picsum.photos/200/300',
-    date: DateTime.now(),
-    isPublished: false,
-  );
   List<Event> _events = [];
   final int currentIndex = 0;
   bool hasMoreEvents = true;

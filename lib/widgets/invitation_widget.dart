@@ -28,7 +28,7 @@ class _InvitationWidgetState extends State<InvitationWidget> {
       children: [
         TalkWidget(key: super.widget.key, talk: widget.talk),
         if (widget.talk.start.isAfter(DateTime.now()))
-          EventArguments.EventFilledButton(
+          EventArguments.eventFilledButton(
             onPressed: () {
               if (widget.talk.status == TalkStatus.pending) {
                 Request.changeTalkStatus(

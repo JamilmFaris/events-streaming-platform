@@ -40,7 +40,15 @@ class EventWidget extends StatelessWidget {
               ),
             ),
             Text(event.title),
-            Text(Helper.getFormattedDateWithTime(event.date))
+            Text(Helper.getFormattedDateWithTime(event.date),
+                style: const TextStyle(fontSize: 12)),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Text(
+                event.isBooked ? 'booked' : 'unbooked',
+                style: const TextStyle(fontSize: 10),
+              ),
+            ),
           ],
         ),
       ),

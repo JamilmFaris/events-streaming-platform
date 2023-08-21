@@ -1,7 +1,6 @@
 import 'package:events_streaming_platform/design/tw_colors.dart';
 import 'package:events_streaming_platform/screens/view_streamed_video.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../classes/event_arguments.dart';
 import '../classes/helper.dart';
@@ -136,7 +135,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
                           ),
                           if (widget.event.organizerName != username &&
                               widget.event.date.isAfter(DateTime.now()))
-                            EventArguments.EventFilledButton(
+                            EventArguments.eventFilledButton(
                               onPressed: () {
                                 (isBooked)
                                     ? Request.cancelBookingEvent(

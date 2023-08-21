@@ -106,7 +106,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 : Text(
                     'picked date is\n${Helper.getFormattedDateWithTime(_selectedDate!)}'),
           ),
-          EventArguments.EventFilledButton(
+          EventArguments.eventFilledButton(
             onPressed: () => addEvent(context),
             child: const Text('save to archived'),
           ),
@@ -174,6 +174,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       image!,
       _selectedDate!,
     );
-    Navigator.pushNamed(context, OrganizedEventsScreen.routeName);
+    Navigator.pushNamed(context, HomeScreen.routeName);
   }
 }

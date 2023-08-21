@@ -12,6 +12,7 @@ class Event {
   DateTime date;
   bool isPublished;
   List<Talk>? talks;
+  bool isBooked;
 
   Event({
     required this.id,
@@ -21,6 +22,7 @@ class Event {
     required this.picture,
     required this.date,
     required this.isPublished,
+    required this.isBooked,
     this.talks,
   });
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class Event {
       picture: pic,
       date: date,
       isPublished: json['is_published'],
+      isBooked: json['is_booked'],
     );
   }
   @override
