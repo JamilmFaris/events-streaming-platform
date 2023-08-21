@@ -9,15 +9,28 @@ class MessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: EdgeInsets.all(10),
       decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.black,
-          width: 1.0,
-        ),
-        borderRadius: BorderRadius.circular(8.0),
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(10),
       ),
-      child: ListTile(
-        title: Text(message.content),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            message.sender,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color: Colors.red,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            message.content,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
       ),
     );
   }

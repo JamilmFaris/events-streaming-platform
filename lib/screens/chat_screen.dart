@@ -9,7 +9,7 @@ import '../request/request.dart';
 import '../widgets/message_widget.dart';
 
 class ChatScreen extends StatefulWidget {
-  static int talkId = 24;
+  static int talkId = 28;
   late double height;
   bool isFirstBuild = true;
   ChatScreen({super.key});
@@ -22,7 +22,7 @@ class _ChatScreenState extends State<ChatScreen> {
   late final WebSocketChannel channel;
   late Stream<dynamic> stream;
   String? chatKey;
-  List<Message> messages = [Message('')];
+  List<Message> messages = [Message('', '')];
   @override
   void initState() {
     Request.getChatKey(context).then((value) {
@@ -43,24 +43,6 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
   }
 
-  void refreshConnection() {
-    Request.getChatKey(context).then((value) {
-      chatKey = value;
-      print('chat key $chatKey');
-      var uri = Uri.parse(
-        'ws://192.168.1.9:8080/ws/chats/talks/${ChatScreen.talkId}/?token=$chatKey',
-      );
-      try {
-        channel = WebSocketChannel.connect(uri);
-      } catch (error) {
-        print(error);
-        showSanckBarMessage('an error occured try to refresh \n$error');
-      }
-      print('init state');
-      setState(() {});
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     if (widget.isFirstBuild) {
@@ -75,12 +57,6 @@ class _ChatScreenState extends State<ChatScreen> {
       drawer: NavDrawer.getDrawer(context, '', '', '', false),
       appBar: AppBar(
         title: const Text('chat screen'),
-        actions: [
-          IconButton(
-            onPressed: refreshConnection,
-            icon: const Icon(Icons.refresh),
-          )
-        ],
       ),
       body: chatKey != null
           ? SingleChildScrollView(
@@ -90,12 +66,16 @@ class _ChatScreenState extends State<ChatScreen> {
                     stream: channel.stream,
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
-                          json.decode(snapshot.data)['message'] !=
-                              messages[messages.length - 1].content) {
+                          (json.decode(snapshot.data)['message'] !=
+                                  messages[messages.length - 1].content ||
+                              json.decode(snapshot.data)['username'] !=
+                                  messages[messages.length - 1].sender)) {
                         //checking that the message recieved is not the same as the last message not to cause the rebuild of the widget when the keyboard is on or off
                         var data = json.decode(snapshot.data);
-                        messages.add(Message(data['message']));
-                        print('message recieved');
+                        messages
+                            .add(Message(data['username'], data['message']));
+                        print(
+                            'message recieved ${data['message']} user is ${data['username']}');
                       }
                       return SizedBox(
                         height: widget.height,
