@@ -197,7 +197,8 @@ abstract class Request {
     )
         .then((response) async {
       if (response.statusCode == 200) {
-        var results = json.decode(response.body) as List;
+        var responseBody = json.decode(response.body) as Map<String, dynamic>;
+        var results = responseBody['results'] as List;
         Future<List<Event>> curEvents =
             Future.wait(results.map((element) async {
           Event curEvent = Event.fromJson(element);
@@ -222,6 +223,60 @@ abstract class Request {
       }
     });
 
+    return events;
+  }
+
+  static Future<List<Event>> getMyOrganizedUnPublishedEvents({
+    BuildContext? context,
+    required int offset,
+    required int limit,
+  }) async {
+    String? token = await Token.getToken();
+    if (token == null) {
+      showLoginFirstMessage(context!);
+      return [];
+    }
+    User? myUser = await CurrentUser.getUser();
+    if (myUser == null) {
+      showLoginFirstMessage(context!);
+      return [];
+    }
+    var url = Uri.http(
+      authority,
+      '$urlPrefix$databaseVersion/users/${myUser.username}/organized-events/',
+    );
+
+    var headers = {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'Authorization': 'Bearer $token',
+    };
+    Future<List<Event>> events = http
+        .get(
+      url,
+      headers: headers,
+    )
+        .then((response) async {
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body) as Map<String, dynamic>;
+        var results = responseBody['results'] as List;
+        List<Future<Event>> curFutureEvents = results.map((element) async {
+          Event curEvent = Event.fromJson(element);
+          List<Talk> talks = await getTalks(context!, curEvent.id, token);
+          curEvent.talks = talks;
+          return curEvent;
+        }).toList();
+        Future<List<Event>> events = Future.wait(curFutureEvents);
+        events.then((value) {
+          value.removeWhere((element) {
+            return element.isPublished;
+          });
+        });
+        return events;
+      } else {
+        showProblemMessage(context!, response.body);
+        return [];
+      }
+    });
     return events;
   }
 
@@ -261,59 +316,6 @@ abstract class Request {
       }
     });
     return talks;
-  }
-
-  static Future<List<Event>> getMyOrganizedUnPublishedEvents({
-    BuildContext? context,
-    required int offset,
-    required int limit,
-  }) async {
-    String? token = await Token.getToken();
-    if (token == null) {
-      showLoginFirstMessage(context!);
-      return [];
-    }
-    User? myUser = await CurrentUser.getUser();
-    if (myUser == null) {
-      showLoginFirstMessage(context!);
-      return [];
-    }
-    var url = Uri.http(
-      authority,
-      '$urlPrefix$databaseVersion/users/${myUser.username}/organized-events/',
-    );
-
-    var headers = {
-      'Content-Type': 'application/json; charset=UTF-8',
-      'Authorization': 'Bearer $token',
-    };
-    Future<List<Event>> events = http
-        .get(
-      url,
-      headers: headers,
-    )
-        .then((response) async {
-      if (response.statusCode == 200) {
-        var results = json.decode(response.body) as List;
-        List<Future<Event>> curFutureEvents = results.map((element) async {
-          Event curEvent = Event.fromJson(element);
-          List<Talk> talks = await getTalks(context!, curEvent.id, token);
-          curEvent.talks = talks;
-          return curEvent;
-        }).toList();
-        Future<List<Event>> events = Future.wait(curFutureEvents);
-        events.then((value) {
-          value.removeWhere((element) {
-            return element.isPublished;
-          });
-        });
-        return events;
-      } else {
-        showProblemMessage(context!, response.body);
-        return [];
-      }
-    });
-    return events;
   }
 
   static Future<List<Event>> getMyUpcomingEvents({
@@ -816,7 +818,9 @@ abstract class Request {
     );
     Future<List<Talk>> invitations = res.then((response) {
       if (response.statusCode == 200) {
-        var results = json.decode(response.body) as List;
+        var responseBody = json.decode(response.body) as Map<String, dynamic>;
+        print('response body $responseBody');
+        var results = responseBody['results'] as List;
         List<Talk> curInvitations = results.map((element) {
           Talk invitation = Talk.invitationFromJson(
             element,
