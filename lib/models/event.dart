@@ -1,5 +1,6 @@
 import 'package:events_streaming_platform/classes/helper.dart';
 
+import '../request/request.dart';
 import 'user.dart';
 
 class Event {
@@ -29,12 +30,15 @@ class Event {
     } catch (e) {
       date = Helper.format2.parse(json['started_at']);
     }
+    String pic = json['picture'];
+    pic = 'http://${Request.authority}$pic';
+
     return Event(
       id: json['id'],
       title: json['title'],
       organizerName: json['organizer'],
       description: json['description'],
-      picture: json['picture'],
+      picture: pic,
       date: date,
       isPublished: json['is_published'],
     );
@@ -106,7 +110,9 @@ class Talk {
     );
   }
   factory Talk.invitationFromJson(
-      Map<String, dynamic> json, String myUsername) {
+    Map<String, dynamic> json,
+    String myUsername,
+  ) {
     var statusString = json['status'];
     TalkStatus status;
     if (statusString == 'pending') {
@@ -119,7 +125,7 @@ class Talk {
     return Talk.addTalkUsingSpeakerUsername(
       id: json['id'],
       title: json['title'],
-      eventId: json['event'],
+      eventId: json['event']['id'],
       speakerUsername: myUsername,
       start: Helper.getFormattedDate(json['start']),
       end: Helper.getFormattedDate(json['end']),
