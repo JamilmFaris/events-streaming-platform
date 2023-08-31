@@ -1,3 +1,4 @@
+import 'package:events_streaming_platform/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
@@ -83,6 +84,14 @@ class _ViewStreamedVideoScreenState extends State<ViewStreamedVideoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      /*floatingActionButton: FloatingActionButton(onPressed: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => HomeScreen(),
+          ),
+        );
+      }),*/
       backgroundColor: TwColors.backgroundColor(context),
       body: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
@@ -109,17 +118,6 @@ class _ViewStreamedVideoScreenState extends State<ViewStreamedVideoScreen> {
                                     aspectRatio: _videoPlayerController!
                                         .value.aspectRatio,
                                     child: VideoPlayer(_videoPlayerController!),
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: IconButton(
-                                      icon: const Icon(
-                                        Icons.fullscreen,
-                                        color: Colors.white,
-                                      ),
-                                      onPressed: toggleFullscreen,
-                                    ),
                                   ),
                                   Positioned(
                                     bottom: 0,

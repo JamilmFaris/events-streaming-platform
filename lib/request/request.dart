@@ -12,7 +12,7 @@ import '../screens/home_screen.dart';
 import '../screens/invitations_screen.dart';
 
 abstract class Request {
-  static String authority = '10.5.50.109:8080';
+  static String authority = '192.168.1.14:8080';
   static String databaseVersion = '/v1';
   static String urlPrefix = '/api';
 
@@ -285,10 +285,8 @@ abstract class Request {
   }
 
   static Future<List<Talk>> getTalks(
-    BuildContext context,
-    int eventId,
-    String? token,
-  ) async {
+      BuildContext context, int eventId, String? token,
+      {bool includeAll = true}) async {
     token ??= await Token.getToken();
     if (token == null) {
       if (!context.mounted) return [];
@@ -297,7 +295,7 @@ abstract class Request {
     var url = Uri.http(
       authority,
       '$urlPrefix$databaseVersion/events/$eventId/talks/',
-      {'include_all': 'true'},
+      {'include_all': includeAll.toString()},
     );
 
     Future<http.Response> res = http.get(
@@ -316,6 +314,7 @@ abstract class Request {
         }).toList();
         return curTalks;
       } else {
+        print('talks error ${response.body}');
         return [];
       }
     });
@@ -366,7 +365,7 @@ abstract class Request {
         }).toList());
         return curEvents;
       } else {
-        showProblemMessage(context!, response.body);
+        showLoginFirstMessage(context!);
         return [];
       }
     });
@@ -389,24 +388,28 @@ abstract class Request {
       },
     );
     print('get published events');
-    Future<http.Response> res = http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
     String? token = await Token.getToken();
     if (token == null) {
       if (!context!.mounted) return [];
       showLoginFirstMessage(context);
       return [];
     }
+    Future<http.Response> res = http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
     Future<List<Event>> events = res.then((response) {
       var j = json.decode(response.body);
       var results = j['results'] as List;
       List<Future<Event>> curEvents = results.map((element) async {
+        print('event $element');
         Event curEvent = Event.fromJson(element);
-        curEvent.talks = await getTalks(context!, curEvent.id, token);
+        curEvent.talks =
+            await getTalks(context!, curEvent.id, token, includeAll: true);
         return curEvent;
       }).toList();
       return Future.wait(curEvents);

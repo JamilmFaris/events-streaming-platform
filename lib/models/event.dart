@@ -32,8 +32,13 @@ class Event {
     } catch (e) {
       date = Helper.format2.parse(json['started_at']);
     }
-    String pic = json['picture'];
-    pic = 'http://${Request.authority}$pic';
+    date = date.add(Duration(hours: 3));
+    String? pic = json['picture'];
+    if (pic != null) {
+      pic = 'http://${Request.authority}$pic';
+    } else {
+      pic = 'https://dummyimage.com/400x200/000000/ffffff';
+    }
 
     return Event(
       id: json['id'],

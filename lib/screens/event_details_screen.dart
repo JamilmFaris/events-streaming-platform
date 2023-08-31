@@ -6,6 +6,7 @@ import '../classes/event_arguments.dart';
 import '../classes/helper.dart';
 import '../models/current_user.dart';
 import '../models/event.dart';
+import '../models/token.dart';
 import '../models/user.dart';
 import '../request/request.dart';
 import '../widgets/talks_widget.dart';
@@ -28,10 +29,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
       username = myUser.username;
     }
     if (!context.mounted) return 'error';
+    String? token = await Token.getToken();
+    if (token == null) {
+      if (!mounted) return '';
+      Request.showLoginFirstMessage(context);
+    }
+    if (!mounted) return '';
     widget.event.talks = await Request.getTalks(
       context,
       widget.event.id,
-      null,
+      token!,
+      includeAll: false,
     );
     if (!context.mounted) return 'error';
     isBooked = await Request.isEventBooked(context, widget.event.id);
@@ -40,10 +48,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Size screenSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         title: Text('event : ${widget.event.title}'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.redo),
+        onPressed: () {
+          setState(() {});
+        },
       ),
       body: FutureBuilder(
         future: future(),
@@ -56,18 +69,22 @@ class _EventDetailsScreenState extends State<EventDetailsScreen> {
             return Text('error ${snapshot.error}');
           } else if (snapshot.connectionState == ConnectionState.done &&
               snapshot.hasData) {
-            widget.event.talks?.forEach((talk) {
-              if (talk.start.isBefore(DateTime.now()) &&
-                  talk.end.isAfter(DateTime.now())) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                        ViewStreamedVideoScreen(talkId: talk.id!),
-                  ),
-                );
+            if (widget.event.talks != null) {
+              for (Talk talk in widget.event.talks!) {
+                if (talk.start.isBefore(DateTime.now()) &&
+                    talk.end.isAfter(DateTime.now())) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          ViewStreamedVideoScreen(talkId: talk.id!),
+                    ),
+                  );
+                  break;
+                }
               }
-            });
+            }
+
             return Stack(
               children: [
                 ColorFiltered(
